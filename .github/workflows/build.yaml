@@ -1,0 +1,20 @@
+name: Build Workflow
+
+run-name: 'Build Workflow -- ${{ github.head_ref || github.ref_name }}'
+
+on:
+  push:
+  pull_request:
+
+env:
+  BRANCH_NAME: ${{github.ref_name}}
+
+jobs:
+  build-job:
+    name: Build Job
+    runs-on: ubuntu-24.04
+    steps:
+      - name: Build IKMDEV Code
+        uses: ikmdev/maven-clean-install-build-action@v3
+        with:
+          branch_name: ${{env.BRANCH_NAME}}

@@ -2,19 +2,28 @@ name: Build Workflow
 
 run-name: 'Build Workflow -- ${{ github.head_ref || github.ref_name }}'
 
+# Pipeline/Workflow Triggers
 on:
-  push:
-  pull_request:
+    push:
+    pull_request:
+    workflow_dispatch:
 
-env:
-  BRANCH_NAME: ${{github.ref_name}}
 
 jobs:
+  pr-verification:
+    name: Pull Request Validation
+    runs-on: ubuntu-24.04
+    if: github.event_name == 'pull_request'
+    steps:
+      - name: Pull Request Version Validation
+        uses: ikmdev/maven-pull-request-version-validation-action@v2
+        
   build-job:
     name: Build Job
     runs-on: ubuntu-24.04
-    steps:
+    steps:          
       - name: Build IKMDEV Code
         uses: ikmdev/maven-clean-install-build-action@v3
         with:
-          branch_name: ${{env.BRANCH_NAME}}
+          branch_name: ${{github.ref_name}}
+         

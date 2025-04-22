@@ -12,7 +12,9 @@
     <name>RxNorm Data</name>
 
     <modules>
+        <module>plugin</module>
         <module>rxnorm-starterdata</module>
+        <module>rxnorm-pipeline</module>
     </modules>
 
     <properties>
@@ -23,9 +25,16 @@
         <maven-dependency-plugin.version>3.8.0</maven-dependency-plugin.version>
         <tinkar-starter-data.version>1.9.0</tinkar-starter-data.version>
         <tinkar-core.version>1.95.0</tinkar-core.version>
+        <maven-plugin-api.version>3.9.7</maven-plugin-api.version>
+        <slf4j.version>2.0.17</slf4j.version>
+        <tinkar-composer.version>1.5.0</tinkar-composer.version>
+        <maven-plugin-annotations.version>3.13.0</maven-plugin-annotations.version>
+        <eclipse-collections-api.version>11.1.0-r11</eclipse-collections-api.version>
+        <maven-plugin-plugin.version>3.13.0</maven-plugin-plugin.version>
         <!-- origin -->
         <origin.working.directory>${project.build.directory}/origin-sources</origin.working.directory>
         <source.zip>SnomedCT_InternationalRF2_PRODUCTION_20241201T120000Z.zip</source.zip>
+        <origin.namespace></origin.namespace>
     </properties>
     <dependencyManagement>
         <dependencies>

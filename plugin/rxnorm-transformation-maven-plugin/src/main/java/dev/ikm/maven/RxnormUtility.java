@@ -6,7 +6,7 @@ import dev.ikm.tinkar.terms.EntityProxy;
 import java.util.UUID;
 
 public class RxnormUtility {
-    private static EntityProxy.Pattern makePatternProxy(UUID namespace, String description) {
+    public static EntityProxy.Pattern makePatternProxy(UUID namespace, String description) {
         return EntityProxy.Pattern.make(description, UuidT5Generator.get(namespace, description));
     }
 

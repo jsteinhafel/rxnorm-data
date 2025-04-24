@@ -9,6 +9,9 @@ import dev.ikm.tinkar.common.util.uuid.UuidT5Generator;
 import dev.ikm.tinkar.composer.Composer;
 import dev.ikm.tinkar.composer.Session;
 import dev.ikm.tinkar.composer.assembler.ConceptAssembler;
+import dev.ikm.tinkar.composer.assembler.PatternAssembler;
+import dev.ikm.tinkar.composer.template.FullyQualifiedName;
+import dev.ikm.tinkar.composer.template.Synonym;
 import dev.ikm.tinkar.entity.EntityService;
 import dev.ikm.tinkar.terms.EntityProxy;
 import dev.ikm.tinkar.terms.State;
@@ -32,6 +35,12 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipInputStream;
+
+import static dev.ikm.tinkar.terms.TinkarTerm.LANGUAGE;
+import static dev.ikm.tinkar.terms.TinkarTerm.STRING;
+import static dev.ikm.tinkar.terms.TinkarTerm.ENGLISH_LANGUAGE;
+import static dev.ikm.tinkar.terms.TinkarTerm.COMPONENT_FIELD;
+import static dev.ikm.tinkar.terms.TinkarTerm.DESCRIPTION_NOT_CASE_SENSITIVE;
 
 @Mojo(name = "run-rxnorm-transformation", defaultPhase = LifecyclePhase.INSTALL)
 public class RxnormTransformationMojo extends AbstractMojo {
@@ -81,6 +90,8 @@ public class RxnormTransformationMojo extends AbstractMojo {
             Composer composer = new Composer("Rxnorm Transformer Composer");
 
             try {
+                LOG.info("Creating Patterns...");
+                createPatterns(composer);
                 LOG.info("Starting rxnorm owl file processing...");
                 createConcepts(composer);
             } catch (Exception e) {
@@ -94,6 +105,107 @@ public class RxnormTransformationMojo extends AbstractMojo {
             PrimitiveData.stop();
             LOG.info("########## Rxnorm Transformation Completed.");
         }
+    }
+
+    private void createPatterns(Composer composer){
+        Session session = composer.open(State.ACTIVE, rxnormAuthor, TinkarTerm.PRIMORDIAL_MODULE, TinkarTerm.PRIMORDIAL_PATH);
+
+        String qualitativeDistinctionSemanticStr = "Qualitative Distinction Semantic";
+        EntityProxy.Concept qualitativeDistinctionSemantic = RxnormUtility.makeConceptProxy(namespace, qualitativeDistinctionSemanticStr);
+        String textForQualitativeDistinctionStr = "Text for Qualitative Distinction";
+        EntityProxy.Concept textForQualitativeDistinction = RxnormUtility.makeConceptProxy(namespace, textForQualitativeDistinctionStr);
+        String drugQualitativeDistinctionStr = "Drug Qualitative Distinction";
+        EntityProxy.Concept drugQualitativeDistinction = RxnormUtility.makeConceptProxy(namespace, drugQualitativeDistinctionStr);
+        String languageForQualitativeDistinctionStr = "Language For Qualitative Distinction";
+        EntityProxy.Concept languageForQualitativeDistinction = RxnormUtility.makeConceptProxy(namespace, languageForQualitativeDistinctionStr);
+        session.compose((PatternAssembler patternAssembler) -> patternAssembler.pattern(RxnormUtility.makePatternProxy(namespace, "Qualitative Distinction"))
+                        .meaning(qualitativeDistinctionSemantic)
+                        .purpose(qualitativeDistinctionSemantic)
+                        .fieldDefinition(textForQualitativeDistinction, drugQualitativeDistinction, STRING)
+                        .fieldDefinition(languageForQualitativeDistinction, LANGUAGE, COMPONENT_FIELD))
+                .attach((FullyQualifiedName fqn) -> fqn
+                        .text("Qualitative Distinction Pattern")
+                        .language(ENGLISH_LANGUAGE)
+                        .caseSignificance(DESCRIPTION_NOT_CASE_SENSITIVE))
+                .attach((Synonym synonym) -> synonym
+                        .text("Qualitative Distinction Pattern")
+                        .language(ENGLISH_LANGUAGE)
+                        .caseSignificance(DESCRIPTION_NOT_CASE_SENSITIVE));
+
+        String quantitySemanticStr = "Quantity Semantic";
+        EntityProxy.Concept quantitySemantic = RxnormUtility.makeConceptProxy(namespace, quantitySemanticStr);
+        String textForQuantityStr = "Text for Quantity";
+        EntityProxy.Concept textForQuantity = RxnormUtility.makeConceptProxy(namespace, textForQuantityStr);
+        String drugQuantityStr = "Drug Quantity";
+        EntityProxy.Concept drugQuantity = RxnormUtility.makeConceptProxy(namespace, drugQuantityStr);
+        session.compose((PatternAssembler patternAssembler) -> patternAssembler.pattern(RxnormUtility.makePatternProxy(namespace, "Quantity"))
+                        .meaning(quantitySemantic)
+                        .purpose(quantitySemantic)
+                        .fieldDefinition(textForQuantity, drugQuantity, STRING))
+                .attach((FullyQualifiedName fqn) -> fqn
+                        .text("Quantity Pattern")
+                        .language(ENGLISH_LANGUAGE)
+                        .caseSignificance(DESCRIPTION_NOT_CASE_SENSITIVE))
+                .attach((Synonym synonym) -> synonym
+                        .text("Quantity Pattern")
+                        .language(ENGLISH_LANGUAGE)
+                        .caseSignificance(DESCRIPTION_NOT_CASE_SENSITIVE));
+
+        String scheduleSemanticStr = "Schedule Semantic";
+        EntityProxy.Concept scheduleSemantic = RxnormUtility.makeConceptProxy(namespace, scheduleSemanticStr);
+        String textForScheduleStr = "Text for Schedule";
+        EntityProxy.Concept textForSchedule = RxnormUtility.makeConceptProxy(namespace, textForScheduleStr);
+        String drugScheduleStr = "Drug Schedule";
+        EntityProxy.Concept drugSchedule = RxnormUtility.makeConceptProxy(namespace, drugScheduleStr);
+        String languageForScheduleStr = "Language For Schedule";
+        EntityProxy.Concept languageForSchedule = RxnormUtility.makeConceptProxy(namespace, languageForScheduleStr);
+        session.compose((PatternAssembler patternAssembler) -> patternAssembler.pattern(RxnormUtility.makePatternProxy(namespace, "Schedule"))
+                        .meaning(scheduleSemantic)
+                        .purpose(scheduleSemantic)
+                        .fieldDefinition(textForSchedule, drugSchedule, STRING)
+                        .fieldDefinition(languageForSchedule, LANGUAGE, COMPONENT_FIELD))
+                .attach((FullyQualifiedName fqn) -> fqn
+                        .text("Quantity Pattern")
+                        .language(ENGLISH_LANGUAGE)
+                        .caseSignificance(DESCRIPTION_NOT_CASE_SENSITIVE))
+                .attach((Synonym synonym) -> synonym
+                        .text("Quantity Pattern")
+                        .language(ENGLISH_LANGUAGE)
+                        .caseSignificance(DESCRIPTION_NOT_CASE_SENSITIVE));
+
+        String humanDrugSemanticStr = "Human Drug Semantic";
+        EntityProxy.Concept humanDrugSemantic = RxnormUtility.makeConceptProxy(namespace, humanDrugSemanticStr);
+        String humanDrugIdentifierStr = "Human Drug Identifier";
+        EntityProxy.Concept humanDrugIdentifier = RxnormUtility.makeConceptProxy(namespace, humanDrugIdentifierStr);
+        session.compose((PatternAssembler patternAssembler) -> patternAssembler.pattern(RxnormUtility.makePatternProxy(namespace, "Human Drug"))
+                        .meaning(humanDrugSemantic)
+                        .purpose(humanDrugSemantic)
+                        .fieldDefinition(humanDrugIdentifier, humanDrugIdentifier, COMPONENT_FIELD))
+                .attach((FullyQualifiedName fqn) -> fqn
+                        .text("Human Drug Pattern")
+                        .language(ENGLISH_LANGUAGE)
+                        .caseSignificance(DESCRIPTION_NOT_CASE_SENSITIVE))
+                .attach((Synonym synonym) -> synonym
+                        .text("Human Drug Pattern")
+                        .language(ENGLISH_LANGUAGE)
+                        .caseSignificance(DESCRIPTION_NOT_CASE_SENSITIVE));
+
+        String vetDrugSemanticStr = "Veterinarian Drug Semantic";
+        EntityProxy.Concept vetDrugSemantic = RxnormUtility.makeConceptProxy(namespace, vetDrugSemanticStr);
+        String vetDrugIdentifierStr = "Human Drug Identifier";
+        EntityProxy.Concept vetDrugIdentifier = RxnormUtility.makeConceptProxy(namespace, vetDrugIdentifierStr);
+        session.compose((PatternAssembler patternAssembler) -> patternAssembler.pattern(RxnormUtility.makePatternProxy(namespace, "Human Drug"))
+                        .meaning(vetDrugSemantic)
+                        .purpose(vetDrugSemantic)
+                        .fieldDefinition(vetDrugIdentifier, vetDrugIdentifier, COMPONENT_FIELD))
+                .attach((FullyQualifiedName fqn) -> fqn
+                        .text("Human Drug Pattern")
+                        .language(ENGLISH_LANGUAGE)
+                        .caseSignificance(DESCRIPTION_NOT_CASE_SENSITIVE))
+                .attach((Synonym synonym) -> synonym
+                        .text("Human Drug Pattern")
+                        .language(ENGLISH_LANGUAGE)
+                        .caseSignificance(DESCRIPTION_NOT_CASE_SENSITIVE));
     }
 
     private void createConcepts(Composer composer){

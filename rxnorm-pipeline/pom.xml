@@ -29,6 +29,7 @@
                 <version>1.0.0-SNAPSHOT</version>
                 <configuration>
                     <namespaceString>${origin.namespace}</namespaceString>
+                    <rxnormOwl>${user.home}/Code/rxnorm-data/rxnorm-origin/Pilot-Defined-RxNorm-with-SNCT-classes-2024-04-10-with-custom-annotations.owl</rxnormOwl>
                     <datastorePath>${user.home}/Solor/generated-data</datastorePath>
                     <inputDirectoryPath>${user.home}/.m2/repository/dev/ikm/rxnorm/rxnorm-origin/${project.version}/rxnorm-origin-${project.version}-data.zip</inputDirectoryPath>
                     <dataOutputPath>${project.build.directory}</dataOutputPath>

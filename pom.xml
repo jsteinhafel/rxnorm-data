@@ -33,8 +33,8 @@
         <maven-plugin-plugin.version>3.13.0</maven-plugin-plugin.version>
         <!-- origin -->
         <origin.working.directory>${project.build.directory}/origin-sources</origin.working.directory>
-        <source.zip>SnomedCT_InternationalRF2_PRODUCTION_20241201T120000Z.zip</source.zip>
-        <origin.namespace></origin.namespace>
+        <source.zip>Pilot-Defined-RxNorm-with-SNCT-classes-2024-04-10-with-custom-annotations</source.zip>
+        <origin.namespace>7b880c4c-8e54-5625-863c-c8504fa78243</origin.namespace>
     </properties>
     <dependencyManagement>
         <dependencies>

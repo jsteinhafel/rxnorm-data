@@ -68,10 +68,10 @@ public class RxnormTransformationMojo extends AbstractMojo {
     private String controllerName;
     private UUID namespace;
     private final String rxnormAuthorStr = "RxNorm Author";
-    private final EntityProxy.Concept rxnormAuthor = RxnormUtility.makeConceptProxy(namespace, rxnormAuthorStr);
+    private EntityProxy.Concept rxnormAuthor;
 
     private final String rxnormModuleStr = "RxNorm Module";
-    private final EntityProxy.Concept rxnormModule = RxnormUtility.makeConceptProxy(namespace, rxnormModuleStr);
+    private EntityProxy.Concept rxnormModule;
 
     @Override
     public void execute() throws MojoExecutionException, MojoFailureException {
@@ -79,6 +79,8 @@ public class RxnormTransformationMojo extends AbstractMojo {
 
         this.namespace = UUID.fromString(namespaceString);
         File datastore = new File(datastorePath);
+        this.rxnormModule = RxnormUtility.makeConceptProxy(namespace, rxnormModuleStr);
+        this.rxnormAuthor = RxnormUtility.makeConceptProxy(namespace, rxnormAuthorStr);
 
 //        try {
 //            unzipRawData(inputDirectoryPath);
@@ -256,7 +258,6 @@ public class RxnormTransformationMojo extends AbstractMojo {
         Session session = composer.open(State.ACTIVE, time, rxnormAuthor, rxnormModule, TinkarTerm.MASTER_PATH);
 
         try {
-            // Create the concept
             EntityProxy.Concept concept = EntityProxy.Concept.make(PublicIds.of(conceptUuid));
 
             session.compose((ConceptAssembler assembler) -> {
@@ -265,7 +266,8 @@ public class RxnormTransformationMojo extends AbstractMojo {
 
             createDescriptionSemantic(session, concept, rxnormData);
 
-            LOG.debug("Created concept for RxNorm ID: " + rxnormId);
+            LOG.info("Created concept for RxNorm ID: " + rxnormId);
+
         } catch (Exception e) {
             LOG.error("Error creating concept for RxNorm ID: " + rxnormId, e);
         }
@@ -283,16 +285,20 @@ public class RxnormTransformationMojo extends AbstractMojo {
                 PublicIds.of(UuidT5Generator.get(namespace, concept.publicId().asUuidArray()[0] + rxnormData.getRxnormName() + "DESC")));
 
         try {
-            session.compose((SemanticAssembler semanticAssembler) -> semanticAssembler
-                    .semantic(semantic)
-                    .pattern(TinkarTerm.DESCRIPTION_PATTERN)
-                    .reference(concept)
-                    .fieldValues(fieldValues -> fieldValues
-                            .with(TinkarTerm.ENGLISH_LANGUAGE)
-                            .with(rxnormData.getRxnormName())
-                            .with(TinkarTerm.DESCRIPTION_NOT_CASE_SENSITIVE)
-                            .with(FULLY_QUALIFIED_NAME_DESCRIPTION_TYPE)
-                    ));
+
+            if(!rxnormData.getRxnormSynonym().isEmpty()) {
+                session.compose((SemanticAssembler semanticAssembler) -> semanticAssembler
+                        .semantic(semantic)
+                        .pattern(TinkarTerm.DESCRIPTION_PATTERN)
+                        .reference(concept)
+                        .fieldValues(fieldValues -> fieldValues
+                                .with(TinkarTerm.ENGLISH_LANGUAGE)
+                                .with(rxnormData.getRxnormName())
+                                .with(TinkarTerm.DESCRIPTION_NOT_CASE_SENSITIVE)
+                                .with(FULLY_QUALIFIED_NAME_DESCRIPTION_TYPE)
+                        ));
+            }
+
             if(!rxnormData.getRxnormSynonym().isEmpty()){
                 session.compose((SemanticAssembler semanticAssembler) -> semanticAssembler
                         .semantic(semantic)
@@ -506,9 +512,11 @@ public class RxnormTransformationMojo extends AbstractMojo {
     private static class RxnormData {
         private String id;
         private String uri;
-        private String rxnormName;
-        private String rxnormSynonym;
-        private String prescribableSynonym;
+
+        private String rxnormName = "";
+        private String rxnormSynonym = "";
+        private String prescribableSynonym = "";
+
         private String snomedCtId;
         private String rxCuiId;
         private String vuidId;

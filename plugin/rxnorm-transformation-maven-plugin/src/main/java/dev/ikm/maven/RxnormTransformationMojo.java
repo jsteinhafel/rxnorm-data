@@ -11,6 +11,7 @@ import dev.ikm.tinkar.composer.Session;
 import dev.ikm.tinkar.composer.assembler.ConceptAssembler;
 import dev.ikm.tinkar.composer.assembler.PatternAssembler;
 import dev.ikm.tinkar.composer.assembler.SemanticAssembler;
+import dev.ikm.tinkar.composer.template.AxiomSyntax;
 import dev.ikm.tinkar.composer.template.FullyQualifiedName;
 import dev.ikm.tinkar.composer.template.Synonym;
 import dev.ikm.tinkar.entity.EntityService;
@@ -37,13 +38,7 @@ import java.util.regex.Pattern;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipInputStream;
 
-import static dev.ikm.tinkar.terms.TinkarTerm.LANGUAGE;
-import static dev.ikm.tinkar.terms.TinkarTerm.STRING;
-import static dev.ikm.tinkar.terms.TinkarTerm.ENGLISH_LANGUAGE;
-import static dev.ikm.tinkar.terms.TinkarTerm.COMPONENT_FIELD;
-import static dev.ikm.tinkar.terms.TinkarTerm.DESCRIPTION_NOT_CASE_SENSITIVE;
-import static dev.ikm.tinkar.terms.TinkarTerm.FULLY_QUALIFIED_NAME_DESCRIPTION_TYPE;
-import static dev.ikm.tinkar.terms.TinkarTerm.REGULAR_NAME_DESCRIPTION_TYPE;
+import static dev.ikm.tinkar.terms.TinkarTerm.*;
 
 @Mojo(name = "run-rxnorm-transformation", defaultPhase = LifecyclePhase.INSTALL)
 public class RxnormTransformationMojo extends AbstractMojo {
@@ -197,7 +192,7 @@ public class RxnormTransformationMojo extends AbstractMojo {
 
         String vetDrugSemanticStr = "Veterinarian Drug Semantic";
         EntityProxy.Concept vetDrugSemantic = RxnormUtility.makeConceptProxy(namespace, vetDrugSemanticStr);
-        String vetDrugIdentifierStr = "Human Drug Identifier";
+        String vetDrugIdentifierStr = "Veterinarian Drug Identifier";
         EntityProxy.Concept vetDrugIdentifier = RxnormUtility.makeConceptProxy(namespace, vetDrugIdentifierStr);
         session.compose((PatternAssembler patternAssembler) -> patternAssembler.pattern(RxnormUtility.makePatternProxy(namespace, "Human Drug"))
                         .meaning(vetDrugSemantic)
@@ -265,6 +260,8 @@ public class RxnormTransformationMojo extends AbstractMojo {
             });
 
             createDescriptionSemantic(session, concept, rxnormData);
+            createIdentifierSemantic(session, concept, rxnormData);
+            createStatedDefinitionSemantics(session, concept, rxnormData);
 
             LOG.info("Created concept for RxNorm ID: " + rxnormId);
 
@@ -283,10 +280,12 @@ public class RxnormTransformationMojo extends AbstractMojo {
     private void createDescriptionSemantic(Session session, EntityProxy.Concept concept, RxnormData rxnormData) {
         EntityProxy.Semantic semantic = EntityProxy.Semantic.make(
                 PublicIds.of(UuidT5Generator.get(namespace, concept.publicId().asUuidArray()[0] + rxnormData.getRxnormName() + "DESC")));
-
+        LOG.info("RxNorm Name: " + rxnormData.getRxnormName());
+        LOG.info("RxNorm Synonym: " + rxnormData.getRxnormSynonym());
+        LOG.info("RxNorm Prescribable Synonym: " + rxnormData.getPrescribableSynonym());
         try {
 
-            if(!rxnormData.getRxnormSynonym().isEmpty()) {
+            if(!rxnormData.getRxnormName().isEmpty()) {
                 session.compose((SemanticAssembler semanticAssembler) -> semanticAssembler
                         .semantic(semantic)
                         .pattern(TinkarTerm.DESCRIPTION_PATTERN)
@@ -325,6 +324,85 @@ public class RxnormTransformationMojo extends AbstractMojo {
             }
         } catch (Exception e) {
             LOG.error("Error creating description semantic for concept: " + concept, e);
+        }
+    }
+
+    /**
+     * Creates a description semantic with the specified description type.
+     *
+     * @param session The current session
+     * @param concept The concept to attach the description to
+     * @param rxnormData contains necessary ids for identification
+     */
+    private void createIdentifierSemantic(Session session, EntityProxy.Concept concept, RxnormData rxnormData) {
+        EntityProxy.Semantic semantic = EntityProxy.Semantic.make(
+                PublicIds.of(UuidT5Generator.get(namespace, concept.publicId().asUuidArray()[0] + rxnormData.getSnomedCtId() + "ID")));
+
+        try {
+
+            if(!rxnormData.getSnomedCtId().isEmpty()) {
+                session.compose((SemanticAssembler semanticAssembler) -> semanticAssembler
+                        .semantic(semantic)
+                        .pattern(IDENTIFIER_PATTERN)
+                        .reference(concept)
+                        .fieldValues(fieldValues -> fieldValues
+                                .with(IDENTIFIER_SOURCE)
+                                .with(rxnormData.getSnomedCtId())
+                        ));
+            }
+
+            if(!rxnormData.getRxCuiId().isEmpty()){
+                session.compose((SemanticAssembler semanticAssembler) -> semanticAssembler
+                        .semantic(semantic)
+                        .pattern(IDENTIFIER_PATTERN)
+                        .reference(concept)
+                        .fieldValues(fieldValues -> fieldValues
+                                .with(IDENTIFIER_SOURCE)
+                                .with(rxnormData.getRxCuiId())
+                        ));
+            }
+            if(!rxnormData.getVuidId().isEmpty()){
+                session.compose((SemanticAssembler semanticAssembler) -> semanticAssembler
+                        .semantic(semantic)
+                        .pattern(IDENTIFIER_PATTERN)
+                        .reference(concept)
+                        .fieldValues(fieldValues -> fieldValues
+                                .with(IDENTIFIER_SOURCE)
+                                .with(rxnormData.getVuidId())
+                        ));
+            }
+            // TODO: need to add stamp active or in active.....
+            if(!rxnormData.getNdcCodes().isEmpty()){
+                rxnormData.getNdcCodes().forEach(ndcCode -> {
+                    session.compose((SemanticAssembler semanticAssembler) -> semanticAssembler
+                            .semantic(semantic)
+                            .pattern(IDENTIFIER_PATTERN)
+                            .reference(concept)
+                            .fieldValues(fieldValues -> fieldValues
+                                    .with(IDENTIFIER_SOURCE)
+                                    .with(ndcCode)
+                            ));
+                });
+            }
+
+        } catch (Exception e) {
+            LOG.error("Error creating description semantic for concept: " + concept, e);
+        }
+    }
+
+    /**
+     * Creates a stated definition semantic that attaches the respective Owl String to the semantic
+     */
+    private void createStatedDefinitionSemantics(Session session, EntityProxy.Concept concept, RxnormData rxnormData) {
+        String owlExpression = rxnormData.getEquivalentClassesStr();
+        EntityProxy.Semantic axiomSemantic = EntityProxy.Semantic.make(PublicIds.of(UuidT5Generator.get(namespace, concept.publicId().asUuidArray()[0] + rxnormData.getEquivalentClassesStr() + "AXIOM")));
+        try {
+            session.compose(new AxiomSyntax()
+                            .semantic(axiomSemantic)
+                            .text(owlExpression),
+                    concept);
+        } catch (Exception e) {
+            LOG.error("Error creating state definition semantic for concept: " + concept, e);
         }
     }
 
@@ -517,9 +595,9 @@ public class RxnormTransformationMojo extends AbstractMojo {
         private String rxnormSynonym = "";
         private String prescribableSynonym = "";
 
-        private String snomedCtId;
-        private String rxCuiId;
-        private String vuidId;
+        private String snomedCtId = "";
+        private String rxCuiId = "";
+        private String vuidId = "";
         private List<String> ndcCodes = new ArrayList<>();
         private String equivalentClassesStr;
 

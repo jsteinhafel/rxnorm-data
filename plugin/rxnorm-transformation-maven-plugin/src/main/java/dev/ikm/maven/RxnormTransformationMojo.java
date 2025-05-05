@@ -30,9 +30,7 @@ import org.slf4j.LoggerFactory;
 import java.io.*;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.UUID;
+import java.util.*;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.zip.ZipEntry;
@@ -260,7 +258,7 @@ public class RxnormTransformationMojo extends AbstractMojo {
             });
 
             createDescriptionSemantic(session, concept, rxnormData);
-            createIdentifierSemantic(composer, session, concept, rxnormData);
+            createIdentifierSemantic(composer, session, concept, rxnormData, time);
             if(!rxnormData.getEquivalentClassesStr().isEmpty()) {
                 createStatedDefinitionSemantics(session, concept, rxnormData);
             }
@@ -282,9 +280,6 @@ public class RxnormTransformationMojo extends AbstractMojo {
     private void createDescriptionSemantic(Session session, EntityProxy.Concept concept, RxnormData rxnormData) {
         EntityProxy.Semantic semantic = EntityProxy.Semantic.make(
                 PublicIds.of(UuidT5Generator.get(namespace, concept.publicId().asUuidArray()[0] + rxnormData.getRxnormName() + "DESC")));
-        LOG.info("RxNorm Name: " + rxnormData.getRxnormName());
-        LOG.info("RxNorm Synonym: " + rxnormData.getRxnormSynonym());
-        LOG.info("RxNorm Prescribable Synonym: " + rxnormData.getPrescribableSynonym());
         try {
 
             if(!rxnormData.getRxnormName().isEmpty()) {
@@ -336,7 +331,7 @@ public class RxnormTransformationMojo extends AbstractMojo {
      * @param concept The concept to attach the description to
      * @param rxnormData contains necessary ids for identification
      */
-    private void createIdentifierSemantic(Composer composer, Session session, EntityProxy.Concept concept, RxnormData rxnormData) {
+    private void createIdentifierSemantic(Composer composer, Session session, EntityProxy.Concept concept, RxnormData rxnormData, long time) {
         EntityProxy.Semantic semantic = EntityProxy.Semantic.make(
                 PublicIds.of(UuidT5Generator.get(namespace, concept.publicId().asUuidArray()[0] + rxnormData.getSnomedCtId() + "ID")));
 
@@ -376,12 +371,23 @@ public class RxnormTransformationMojo extends AbstractMojo {
                                 .with(rxnormData.getVuidId())
                         ));
             }
-            // TODO: need to add stamp active or inactive.....
-            if(!rxnormData.getNdcCodes().isEmpty()){
+            if(!rxnormData.getNdcCodesWithEndDates().isEmpty()){
                 EntityProxy.Concept ndcIdentifier = RxnormUtility.makeConceptProxy(namespace, "National Drug Code");
-                rxnormData.getNdcCodes().forEach(ndcCode -> {
-                    Session session2 = composer.open(State.ACTIVE, time, rxnormAuthor, rxnormModule, DEVELOPMENT_PATH);
-                    session2.compose((SemanticAssembler semanticAssembler) -> semanticAssembler
+                String fileDate = new SimpleDateFormat("yyyyMM").format(new Date(time));
+
+                for (Map.Entry<String, String> entry : rxnormData.getNdcCodesWithEndDates().entrySet()) {
+                    String ndcCode = entry.getKey();
+                    String endDate = entry.getValue();
+
+                    // Determine status based on end date
+                    State state = State.ACTIVE;
+                    if (endDate.compareTo(fileDate) < 0) {
+                        state = State.INACTIVE;
+                    }
+
+                    // Create a new session with the appropriate state
+                    Session ndcSession = composer.open(state, time, rxnormAuthor, rxnormModule, DEVELOPMENT_PATH);
+                    ndcSession.compose((SemanticAssembler semanticAssembler) -> semanticAssembler
                             .semantic(semantic)
                             .pattern(IDENTIFIER_PATTERN)
                             .reference(concept)
@@ -389,7 +395,7 @@ public class RxnormTransformationMojo extends AbstractMojo {
                                     .with(ndcIdentifier)
                                     .with(ndcCode)
                             ));
-                });
+                }
             }
 
         } catch (Exception e) {
@@ -536,10 +542,12 @@ public class RxnormTransformationMojo extends AbstractMojo {
             data.setVuidId(vuidMatcher.group(1));
         }
 
-        // Extract NDC codes
-        Matcher ndcMatcher = Pattern.compile(":ndc <[^>]+> \"([^\"]*)\"").matcher(block);
+        // Extract NDC codes with their start and end dates
+        Matcher ndcMatcher = Pattern.compile("AnnotationAssertion\\(Annotation\\(:endDate \"(\\d+)\"\\) Annotation\\(:startDate \"\\d+\"\\) :ndc <[^>]+> \"([^\"]*)\"\\)").matcher(block);
         while (ndcMatcher.find()) {
-            data.addNdcCode(ndcMatcher.group(1));
+            String endDate = ndcMatcher.group(1);
+            String ndcCode = ndcMatcher.group(2);
+            data.addNdcCodeWithEndDate(ndcCode, endDate);
         }
     }
 
@@ -606,6 +614,7 @@ public class RxnormTransformationMojo extends AbstractMojo {
         private String rxCuiId = "";
         private String vuidId = "";
         private List<String> ndcCodes = new ArrayList<>();
+        private Map<String, String> ndcCodesWithEndDates = new HashMap<>();
         private String equivalentClassesStr = "";
 
         public RxnormData(String uri) {
@@ -650,6 +659,15 @@ public class RxnormTransformationMojo extends AbstractMojo {
         public void setEquivalentClassesStr(String equivalentClassesStr) {
             this.equivalentClassesStr = equivalentClassesStr;
         }
+        public void addNdcCodeWithEndDate(String ndcCode, String endDate) {
+            this.ndcCodes.add(ndcCode); // Keep original list for backward compatibility
+            this.ndcCodesWithEndDates.put(ndcCode, endDate);
+        }
+
+        public Map<String, String> getNdcCodesWithEndDates() {
+            return ndcCodesWithEndDates;
+        }
+
 
         public String getRxnormName() {
             return rxnormName;

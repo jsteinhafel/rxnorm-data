@@ -250,7 +250,7 @@ public class RxnormTransformationMojo extends AbstractMojo {
         UUID conceptUuid = UuidT5Generator.get(namespace, rxnormId);
 
         // Create a session with Active state, RxNorm Author, RxNorm Module, and MasterPath
-        Session session = composer.open(State.ACTIVE, time, rxnormAuthor, rxnormModule, TinkarTerm.MASTER_PATH);
+        Session session = composer.open(State.ACTIVE, time, rxnormAuthor, rxnormModule, DEVELOPMENT_PATH);
 
         try {
             EntityProxy.Concept concept = EntityProxy.Concept.make(PublicIds.of(conceptUuid));
@@ -260,8 +260,10 @@ public class RxnormTransformationMojo extends AbstractMojo {
             });
 
             createDescriptionSemantic(session, concept, rxnormData);
-            createIdentifierSemantic(session, concept, rxnormData);
-            createStatedDefinitionSemantics(session, concept, rxnormData);
+            createIdentifierSemantic(composer, session, concept, rxnormData);
+            if(!rxnormData.getEquivalentClassesStr().isEmpty()) {
+                createStatedDefinitionSemantics(session, concept, rxnormData);
+            }
 
             LOG.info("Created concept for RxNorm ID: " + rxnormId);
 
@@ -334,52 +336,57 @@ public class RxnormTransformationMojo extends AbstractMojo {
      * @param concept The concept to attach the description to
      * @param rxnormData contains necessary ids for identification
      */
-    private void createIdentifierSemantic(Session session, EntityProxy.Concept concept, RxnormData rxnormData) {
+    private void createIdentifierSemantic(Composer composer, Session session, EntityProxy.Concept concept, RxnormData rxnormData) {
         EntityProxy.Semantic semantic = EntityProxy.Semantic.make(
                 PublicIds.of(UuidT5Generator.get(namespace, concept.publicId().asUuidArray()[0] + rxnormData.getSnomedCtId() + "ID")));
 
         try {
 
             if(!rxnormData.getSnomedCtId().isEmpty()) {
+                EntityProxy.Concept snomedIdentifier = RxnormUtility.makeConceptProxy(namespace, "SNOMED CT Identifier Source");
                 session.compose((SemanticAssembler semanticAssembler) -> semanticAssembler
                         .semantic(semantic)
                         .pattern(IDENTIFIER_PATTERN)
                         .reference(concept)
                         .fieldValues(fieldValues -> fieldValues
-                                .with(IDENTIFIER_SOURCE)
+                                .with(snomedIdentifier)
                                 .with(rxnormData.getSnomedCtId())
                         ));
             }
 
             if(!rxnormData.getRxCuiId().isEmpty()){
+                EntityProxy.Concept rxnormIdentifier = RxnormUtility.makeConceptProxy(namespace, "RxNorm Concept Unique Identifier");
                 session.compose((SemanticAssembler semanticAssembler) -> semanticAssembler
                         .semantic(semantic)
                         .pattern(IDENTIFIER_PATTERN)
                         .reference(concept)
                         .fieldValues(fieldValues -> fieldValues
-                                .with(IDENTIFIER_SOURCE)
+                                .with(rxnormIdentifier)
                                 .with(rxnormData.getRxCuiId())
                         ));
             }
             if(!rxnormData.getVuidId().isEmpty()){
+                EntityProxy.Concept vhIdentifier = RxnormUtility.makeConceptProxy(namespace, "Veterans Health Administration National Drug File");
                 session.compose((SemanticAssembler semanticAssembler) -> semanticAssembler
                         .semantic(semantic)
                         .pattern(IDENTIFIER_PATTERN)
                         .reference(concept)
                         .fieldValues(fieldValues -> fieldValues
-                                .with(IDENTIFIER_SOURCE)
+                                .with(vhIdentifier)
                                 .with(rxnormData.getVuidId())
                         ));
             }
-            // TODO: need to add stamp active or in active.....
+            // TODO: need to add stamp active or inactive.....
             if(!rxnormData.getNdcCodes().isEmpty()){
+                EntityProxy.Concept ndcIdentifier = RxnormUtility.makeConceptProxy(namespace, "National Drug Code");
                 rxnormData.getNdcCodes().forEach(ndcCode -> {
-                    session.compose((SemanticAssembler semanticAssembler) -> semanticAssembler
+                    Session session2 = composer.open(State.ACTIVE, time, rxnormAuthor, rxnormModule, DEVELOPMENT_PATH);
+                    session2.compose((SemanticAssembler semanticAssembler) -> semanticAssembler
                             .semantic(semantic)
                             .pattern(IDENTIFIER_PATTERN)
                             .reference(concept)
                             .fieldValues(fieldValues -> fieldValues
-                                    .with(IDENTIFIER_SOURCE)
+                                    .with(ndcIdentifier)
                                     .with(ndcCode)
                             ));
                 });
@@ -599,7 +606,7 @@ public class RxnormTransformationMojo extends AbstractMojo {
         private String rxCuiId = "";
         private String vuidId = "";
         private List<String> ndcCodes = new ArrayList<>();
-        private String equivalentClassesStr;
+        private String equivalentClassesStr = "";
 
         public RxnormData(String uri) {
             this.uri = uri;

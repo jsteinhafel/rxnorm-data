@@ -15,6 +15,7 @@
         <module>plugin</module>
         <module>rxnorm-starterdata</module>
         <module>rxnorm-pipeline</module>
+        <module>rxnorm-integration</module>
     </modules>
 
     <properties>
@@ -31,6 +32,7 @@
         <maven-plugin-annotations.version>3.13.0</maven-plugin-annotations.version>
         <eclipse-collections-api.version>11.1.0-r11</eclipse-collections-api.version>
         <maven-plugin-plugin.version>3.13.0</maven-plugin-plugin.version>
+        <jupiter.version>5.12.0</jupiter.version>
         <!-- origin -->
         <origin.working.directory>${project.build.directory}/origin-sources</origin.working.directory>
         <source.zip>Pilot-Defined-RxNorm-with-SNCT-classes-2024-04-10-with-custom-annotations</source.zip>

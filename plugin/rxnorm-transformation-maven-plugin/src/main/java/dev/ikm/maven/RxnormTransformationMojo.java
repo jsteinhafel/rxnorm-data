@@ -9,11 +9,8 @@ import dev.ikm.tinkar.common.util.uuid.UuidT5Generator;
 import dev.ikm.tinkar.composer.Composer;
 import dev.ikm.tinkar.composer.Session;
 import dev.ikm.tinkar.composer.assembler.ConceptAssembler;
-import dev.ikm.tinkar.composer.assembler.PatternAssembler;
 import dev.ikm.tinkar.composer.assembler.SemanticAssembler;
 import dev.ikm.tinkar.composer.template.AxiomSyntax;
-import dev.ikm.tinkar.composer.template.FullyQualifiedName;
-import dev.ikm.tinkar.composer.template.Synonym;
 import dev.ikm.tinkar.entity.EntityService;
 import dev.ikm.tinkar.terms.EntityProxy;
 import dev.ikm.tinkar.terms.State;
@@ -37,11 +34,6 @@ import java.util.regex.Pattern;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipInputStream;
 
-import static dev.ikm.tinkar.terms.TinkarTerm.ENGLISH_LANGUAGE;
-import static dev.ikm.tinkar.terms.TinkarTerm.LANGUAGE;
-import static dev.ikm.tinkar.terms.TinkarTerm.STRING;
-import static dev.ikm.tinkar.terms.TinkarTerm.COMPONENT_FIELD;
-import static dev.ikm.tinkar.terms.TinkarTerm.DESCRIPTION_NOT_CASE_SENSITIVE;
 import static dev.ikm.tinkar.terms.TinkarTerm.IDENTIFIER_PATTERN;
 import static dev.ikm.tinkar.terms.TinkarTerm.DEVELOPMENT_PATH;
 import static dev.ikm.tinkar.terms.TinkarTerm.FULLY_QUALIFIED_NAME_DESCRIPTION_TYPE;
@@ -81,8 +73,8 @@ public class RxnormTransformationMojo extends AbstractMojo {
 
         this.namespace = UUID.fromString(namespaceString);
         File datastore = new File(datastorePath);
-        this.rxnormModule = RxnormUtility.makeConceptProxy(namespace, rxnormModuleStr);
-        this.rxnormAuthor = RxnormUtility.makeConceptProxy(namespace, rxnormAuthorStr);
+        this.rxnormModule = EntityProxy.Concept.make(PublicIds.of(UUID.fromString("ae4818f8-d523-48e8-abf9-099237ae01ab")));
+        this.rxnormAuthor = EntityProxy.Concept.make(PublicIds.of(UUID.fromString("65f596bd-3cf8-4818-84ea-740500267818")));
 
 //        try {
 //            unzipRawData(inputDirectoryPath);
@@ -97,8 +89,6 @@ public class RxnormTransformationMojo extends AbstractMojo {
             Composer composer = new Composer("Rxnorm Transformer Composer");
 
             try {
-                LOG.info("Creating Patterns...");
-                createPatterns(composer);
                 LOG.info("Starting rxnorm owl file processing...");
                 createConcepts(composer);
             } catch (Exception e) {
@@ -114,106 +104,6 @@ public class RxnormTransformationMojo extends AbstractMojo {
         }
     }
 
-    private void createPatterns(Composer composer){
-        Session session = composer.open(State.ACTIVE, rxnormAuthor, TinkarTerm.PRIMORDIAL_MODULE, TinkarTerm.PRIMORDIAL_PATH);
-
-        String qualitativeDistinctionSemanticStr = "Qualitative Distinction Semantic";
-        EntityProxy.Concept qualitativeDistinctionSemantic = RxnormUtility.makeConceptProxy(namespace, qualitativeDistinctionSemanticStr);
-        String textForQualitativeDistinctionStr = "Text for Qualitative Distinction";
-        EntityProxy.Concept textForQualitativeDistinction = RxnormUtility.makeConceptProxy(namespace, textForQualitativeDistinctionStr);
-        String drugQualitativeDistinctionStr = "Drug Qualitative Distinction";
-        EntityProxy.Concept drugQualitativeDistinction = RxnormUtility.makeConceptProxy(namespace, drugQualitativeDistinctionStr);
-        String languageForQualitativeDistinctionStr = "Language For Qualitative Distinction";
-        EntityProxy.Concept languageForQualitativeDistinction = RxnormUtility.makeConceptProxy(namespace, languageForQualitativeDistinctionStr);
-        session.compose((PatternAssembler patternAssembler) -> patternAssembler.pattern(RxnormUtility.makePatternProxy(namespace, "Qualitative Distinction"))
-                        .meaning(qualitativeDistinctionSemantic)
-                        .purpose(qualitativeDistinctionSemantic)
-                        .fieldDefinition(textForQualitativeDistinction, drugQualitativeDistinction, STRING)
-                        .fieldDefinition(languageForQualitativeDistinction, LANGUAGE, COMPONENT_FIELD))
-                .attach((FullyQualifiedName fqn) -> fqn
-                        .text("Qualitative Distinction Pattern")
-                        .language(ENGLISH_LANGUAGE)
-                        .caseSignificance(DESCRIPTION_NOT_CASE_SENSITIVE))
-                .attach((Synonym synonym) -> synonym
-                        .text("Qualitative Distinction Pattern")
-                        .language(ENGLISH_LANGUAGE)
-                        .caseSignificance(DESCRIPTION_NOT_CASE_SENSITIVE));
-
-        String quantitySemanticStr = "Quantity Semantic";
-        EntityProxy.Concept quantitySemantic = RxnormUtility.makeConceptProxy(namespace, quantitySemanticStr);
-        String textForQuantityStr = "Text for Quantity";
-        EntityProxy.Concept textForQuantity = RxnormUtility.makeConceptProxy(namespace, textForQuantityStr);
-        String drugQuantityStr = "Drug Quantity";
-        EntityProxy.Concept drugQuantity = RxnormUtility.makeConceptProxy(namespace, drugQuantityStr);
-        session.compose((PatternAssembler patternAssembler) -> patternAssembler.pattern(RxnormUtility.makePatternProxy(namespace, "Quantity"))
-                        .meaning(quantitySemantic)
-                        .purpose(quantitySemantic)
-                        .fieldDefinition(textForQuantity, drugQuantity, STRING))
-                .attach((FullyQualifiedName fqn) -> fqn
-                        .text("Quantity Pattern")
-                        .language(ENGLISH_LANGUAGE)
-                        .caseSignificance(DESCRIPTION_NOT_CASE_SENSITIVE))
-                .attach((Synonym synonym) -> synonym
-                        .text("Quantity Pattern")
-                        .language(ENGLISH_LANGUAGE)
-                        .caseSignificance(DESCRIPTION_NOT_CASE_SENSITIVE));
-
-        String scheduleSemanticStr = "Schedule Semantic";
-        EntityProxy.Concept scheduleSemantic = RxnormUtility.makeConceptProxy(namespace, scheduleSemanticStr);
-        String textForScheduleStr = "Text for Schedule";
-        EntityProxy.Concept textForSchedule = RxnormUtility.makeConceptProxy(namespace, textForScheduleStr);
-        String drugScheduleStr = "Drug Schedule";
-        EntityProxy.Concept drugSchedule = RxnormUtility.makeConceptProxy(namespace, drugScheduleStr);
-        String languageForScheduleStr = "Language For Schedule";
-        EntityProxy.Concept languageForSchedule = RxnormUtility.makeConceptProxy(namespace, languageForScheduleStr);
-        session.compose((PatternAssembler patternAssembler) -> patternAssembler.pattern(RxnormUtility.makePatternProxy(namespace, "Schedule"))
-                        .meaning(scheduleSemantic)
-                        .purpose(scheduleSemantic)
-                        .fieldDefinition(textForSchedule, drugSchedule, STRING)
-                        .fieldDefinition(languageForSchedule, LANGUAGE, COMPONENT_FIELD))
-                .attach((FullyQualifiedName fqn) -> fqn
-                        .text("Quantity Pattern")
-                        .language(ENGLISH_LANGUAGE)
-                        .caseSignificance(DESCRIPTION_NOT_CASE_SENSITIVE))
-                .attach((Synonym synonym) -> synonym
-                        .text("Quantity Pattern")
-                        .language(ENGLISH_LANGUAGE)
-                        .caseSignificance(DESCRIPTION_NOT_CASE_SENSITIVE));
-
-        String humanDrugSemanticStr = "Human Drug Semantic";
-        EntityProxy.Concept humanDrugSemantic = RxnormUtility.makeConceptProxy(namespace, humanDrugSemanticStr);
-        String humanDrugIdentifierStr = "Human Drug Identifier";
-        EntityProxy.Concept humanDrugIdentifier = RxnormUtility.makeConceptProxy(namespace, humanDrugIdentifierStr);
-        session.compose((PatternAssembler patternAssembler) -> patternAssembler.pattern(RxnormUtility.makePatternProxy(namespace, "Human Drug"))
-                        .meaning(humanDrugSemantic)
-                        .purpose(humanDrugSemantic)
-                        .fieldDefinition(humanDrugIdentifier, humanDrugIdentifier, COMPONENT_FIELD))
-                .attach((FullyQualifiedName fqn) -> fqn
-                        .text("Human Drug Pattern")
-                        .language(ENGLISH_LANGUAGE)
-                        .caseSignificance(DESCRIPTION_NOT_CASE_SENSITIVE))
-                .attach((Synonym synonym) -> synonym
-                        .text("Human Drug Pattern")
-                        .language(ENGLISH_LANGUAGE)
-                        .caseSignificance(DESCRIPTION_NOT_CASE_SENSITIVE));
-
-        String vetDrugSemanticStr = "Veterinarian Drug Semantic";
-        EntityProxy.Concept vetDrugSemantic = RxnormUtility.makeConceptProxy(namespace, vetDrugSemanticStr);
-        String vetDrugIdentifierStr = "Veterinarian Drug Identifier";
-        EntityProxy.Concept vetDrugIdentifier = RxnormUtility.makeConceptProxy(namespace, vetDrugIdentifierStr);
-        session.compose((PatternAssembler patternAssembler) -> patternAssembler.pattern(RxnormUtility.makePatternProxy(namespace, "Human Drug"))
-                        .meaning(vetDrugSemantic)
-                        .purpose(vetDrugSemantic)
-                        .fieldDefinition(vetDrugIdentifier, vetDrugIdentifier, COMPONENT_FIELD))
-                .attach((FullyQualifiedName fqn) -> fqn
-                        .text("Human Drug Pattern")
-                        .language(ENGLISH_LANGUAGE)
-                        .caseSignificance(DESCRIPTION_NOT_CASE_SENSITIVE))
-                .attach((Synonym synonym) -> synonym
-                        .text("Human Drug Pattern")
-                        .language(ENGLISH_LANGUAGE)
-                        .caseSignificance(DESCRIPTION_NOT_CASE_SENSITIVE));
-    }
 
     private void createConcepts(Composer composer){
         LOG.info("Starting to create concepts from RxNorm OWL file...");
@@ -256,7 +146,7 @@ public class RxnormTransformationMojo extends AbstractMojo {
         // Generate UUID based on RxNorm ID
         UUID conceptUuid = UuidT5Generator.get(namespace, rxnormId);
 
-        // Create a session with Active state, RxNorm Author, RxNorm Module, and MasterPath
+        // Create session with Active state, RxNorm Author, RxNorm Module, and MasterPath
         Session session = composer.open(State.ACTIVE, time, rxnormAuthor, rxnormModule, DEVELOPMENT_PATH);
 
         try {
@@ -272,8 +162,6 @@ public class RxnormTransformationMojo extends AbstractMojo {
                 createStatedDefinitionSemantics(session, concept, rxnormData);
             }
 
-            LOG.info("Created concept for RxNorm ID: " + rxnormId);
-
         } catch (Exception e) {
             LOG.error("Error creating concept for RxNorm ID: " + rxnormId, e);
         }
@@ -287,11 +175,10 @@ public class RxnormTransformationMojo extends AbstractMojo {
      * @param rxnormData contains fqn, and synonyms
      */
     private void createDescriptionSemantic(Session session, EntityProxy.Concept concept, RxnormData rxnormData) {
-        EntityProxy.Semantic semantic = EntityProxy.Semantic.make(
-                PublicIds.of(UuidT5Generator.get(namespace, concept.publicId().asUuidArray()[0] + rxnormData.getRxnormName() + "DESC")));
         try {
-
             if(!rxnormData.getRxnormName().isEmpty()) {
+                EntityProxy.Semantic semantic = EntityProxy.Semantic.make(
+                        PublicIds.of(UuidT5Generator.get(namespace, concept.publicId().asUuidArray()[0] + rxnormData.getRxnormName() + "DESC")));
                 session.compose((SemanticAssembler semanticAssembler) -> semanticAssembler
                         .semantic(semantic)
                         .pattern(TinkarTerm.DESCRIPTION_PATTERN)
@@ -305,6 +192,8 @@ public class RxnormTransformationMojo extends AbstractMojo {
             }
 
             if(!rxnormData.getRxnormSynonym().isEmpty()){
+                EntityProxy.Semantic semantic = EntityProxy.Semantic.make(
+                        PublicIds.of(UuidT5Generator.get(namespace, concept.publicId().asUuidArray()[0] + rxnormData.getRxnormSynonym() + "SDESC")));
                 session.compose((SemanticAssembler semanticAssembler) -> semanticAssembler
                         .semantic(semantic)
                         .pattern(TinkarTerm.DESCRIPTION_PATTERN)
@@ -317,6 +206,8 @@ public class RxnormTransformationMojo extends AbstractMojo {
                         ));
             }
             if(!rxnormData.getPrescribableSynonym().isEmpty()){
+                EntityProxy.Semantic semantic = EntityProxy.Semantic.make(
+                        PublicIds.of(UuidT5Generator.get(namespace, concept.publicId().asUuidArray()[0] + rxnormData.getPrescribableSynonym() + "PSDESC")));
                 session.compose((SemanticAssembler semanticAssembler) -> semanticAssembler
                         .semantic(semantic)
                         .pattern(TinkarTerm.DESCRIPTION_PATTERN)
@@ -341,13 +232,12 @@ public class RxnormTransformationMojo extends AbstractMojo {
      * @param rxnormData contains necessary ids for identification
      */
     private void createIdentifierSemantic(Composer composer, Session session, EntityProxy.Concept concept, RxnormData rxnormData, long time) {
-        EntityProxy.Semantic semantic = EntityProxy.Semantic.make(
-                PublicIds.of(UuidT5Generator.get(namespace, concept.publicId().asUuidArray()[0] + rxnormData.getSnomedCtId() + "ID")));
-
         try {
 
             if(!rxnormData.getSnomedCtId().isEmpty()) {
-                EntityProxy.Concept snomedIdentifier = RxnormUtility.makeConceptProxy(namespace, "SNOMED CT Identifier Source");
+                EntityProxy.Semantic semantic = EntityProxy.Semantic.make(
+                        PublicIds.of(UuidT5Generator.get(namespace, concept.publicId().asUuidArray()[0] + rxnormData.getSnomedCtId() + "ID")));
+                EntityProxy.Concept snomedIdentifier = EntityProxy.Concept.make(PublicIds.of(UUID.fromString("ed73f32d-c068-43f8-9767-ace6dfee44db")));
                 session.compose((SemanticAssembler semanticAssembler) -> semanticAssembler
                         .semantic(semantic)
                         .pattern(IDENTIFIER_PATTERN)
@@ -359,7 +249,9 @@ public class RxnormTransformationMojo extends AbstractMojo {
             }
 
             if(!rxnormData.getRxCuiId().isEmpty()){
-                EntityProxy.Concept rxnormIdentifier = RxnormUtility.makeConceptProxy(namespace, "RxNorm Concept Unique Identifier");
+                EntityProxy.Semantic semantic = EntityProxy.Semantic.make(
+                        PublicIds.of(UuidT5Generator.get(namespace, concept.publicId().asUuidArray()[0] + rxnormData.getRxCuiId() + "ID")));
+                EntityProxy.Concept rxnormIdentifier = EntityProxy.Concept.make(PublicIds.of(UUID.fromString("e409e4ce-4527-49a0-bdc6-f4fe79c21088")));
                 session.compose((SemanticAssembler semanticAssembler) -> semanticAssembler
                         .semantic(semantic)
                         .pattern(IDENTIFIER_PATTERN)
@@ -370,7 +262,9 @@ public class RxnormTransformationMojo extends AbstractMojo {
                         ));
             }
             if(!rxnormData.getVuidId().isEmpty()){
-                EntityProxy.Concept vhIdentifier = RxnormUtility.makeConceptProxy(namespace, "Veterans Health Administration National Drug File");
+                EntityProxy.Semantic semantic = EntityProxy.Semantic.make(
+                        PublicIds.of(UuidT5Generator.get(namespace, concept.publicId().asUuidArray()[0] + rxnormData.getVuidId() + "ID")));
+                EntityProxy.Concept vhIdentifier = EntityProxy.Concept.make(PublicIds.of(UUID.fromString("5d06759b-56f7-4c24-be70-5cea09e0e130")));
                 session.compose((SemanticAssembler semanticAssembler) -> semanticAssembler
                         .semantic(semantic)
                         .pattern(IDENTIFIER_PATTERN)
@@ -381,7 +275,7 @@ public class RxnormTransformationMojo extends AbstractMojo {
                         ));
             }
             if(!rxnormData.getNdcCodesWithEndDates().isEmpty()){
-                EntityProxy.Concept ndcIdentifier = RxnormUtility.makeConceptProxy(namespace, "National Drug Code");
+                EntityProxy.Concept ndcIdentifier = EntityProxy.Concept.make(PublicIds.of(UUID.fromString("88f22a11-3715-4d58-8cb4-aa14d49a6b35")));
                 String fileDate = new SimpleDateFormat("yyyyMM").format(new Date(time));
 
                 for (Map.Entry<String, String> entry : rxnormData.getNdcCodesWithEndDates().entrySet()) {
@@ -394,7 +288,9 @@ public class RxnormTransformationMojo extends AbstractMojo {
                         state = State.INACTIVE;
                     }
 
-                    // Create a new session with the appropriate state
+                    EntityProxy.Semantic semantic = EntityProxy.Semantic.make(
+                            PublicIds.of(UuidT5Generator.get(namespace, concept.publicId().asUuidArray()[0] + ndcCode + "ID")));
+
                     Session ndcSession = composer.open(state, time, rxnormAuthor, rxnormModule, DEVELOPMENT_PATH);
                     ndcSession.compose((SemanticAssembler semanticAssembler) -> semanticAssembler
                             .semantic(semantic)

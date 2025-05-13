@@ -14,7 +14,6 @@ import dev.ikm.tinkar.composer.template.AxiomSyntax;
 import dev.ikm.tinkar.entity.EntityService;
 import dev.ikm.tinkar.terms.EntityProxy;
 import dev.ikm.tinkar.terms.State;
-import dev.ikm.tinkar.terms.TinkarTerm;
 import org.apache.maven.plugin.AbstractMojo;
 import org.apache.maven.plugin.MojoExecutionException;
 import org.apache.maven.plugin.MojoFailureException;
@@ -34,9 +33,14 @@ import java.util.regex.Pattern;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipInputStream;
 
+import static dev.ikm.tinkar.terms.TinkarTerm.DESCRIPTION_CASE_SENSITIVE;
+import static dev.ikm.tinkar.terms.TinkarTerm.DESCRIPTION_NOT_CASE_SENSITIVE;
+import static dev.ikm.tinkar.terms.TinkarTerm.DESCRIPTION_PATTERN;
+import static dev.ikm.tinkar.terms.TinkarTerm.ENGLISH_LANGUAGE;
 import static dev.ikm.tinkar.terms.TinkarTerm.IDENTIFIER_PATTERN;
 import static dev.ikm.tinkar.terms.TinkarTerm.DEVELOPMENT_PATH;
 import static dev.ikm.tinkar.terms.TinkarTerm.FULLY_QUALIFIED_NAME_DESCRIPTION_TYPE;
+import static dev.ikm.tinkar.terms.TinkarTerm.PREFERRED;
 import static dev.ikm.tinkar.terms.TinkarTerm.REGULAR_NAME_DESCRIPTION_TYPE;
 
 @Mojo(name = "run-rxnorm-transformation", defaultPhase = LifecyclePhase.INSTALL)
@@ -139,7 +143,7 @@ public class RxnormTransformationMojo extends AbstractMojo {
         String rxnormId = rxnormData.getId();
 
         if (rxnormId == null || rxnormId.isEmpty()) {
-            LOG.warn("Could not extract RxNorm ID");
+            LOG.warn("Could not extract RxNorm ID" + rxnormId);
             return;
         }
 
@@ -161,6 +165,7 @@ public class RxnormTransformationMojo extends AbstractMojo {
             if(!rxnormData.getEquivalentClassesStr().isEmpty()) {
                 createStatedDefinitionSemantics(session, concept, rxnormData);
             }
+            createPatternSemantics(session, concept, rxnormData);
 
         } catch (Exception e) {
             LOG.error("Error creating concept for RxNorm ID: " + rxnormId, e);
@@ -181,12 +186,12 @@ public class RxnormTransformationMojo extends AbstractMojo {
                         PublicIds.of(UuidT5Generator.get(namespace, concept.publicId().asUuidArray()[0] + rxnormData.getRxnormName() + "DESC")));
                 session.compose((SemanticAssembler semanticAssembler) -> semanticAssembler
                         .semantic(semantic)
-                        .pattern(TinkarTerm.DESCRIPTION_PATTERN)
+                        .pattern(DESCRIPTION_PATTERN)
                         .reference(concept)
                         .fieldValues(fieldValues -> fieldValues
-                                .with(TinkarTerm.ENGLISH_LANGUAGE)
+                                .with(ENGLISH_LANGUAGE)
                                 .with(rxnormData.getRxnormName())
-                                .with(TinkarTerm.DESCRIPTION_NOT_CASE_SENSITIVE)
+                                .with(DESCRIPTION_NOT_CASE_SENSITIVE)
                                 .with(FULLY_QUALIFIED_NAME_DESCRIPTION_TYPE)
                         ));
             }
@@ -196,12 +201,12 @@ public class RxnormTransformationMojo extends AbstractMojo {
                         PublicIds.of(UuidT5Generator.get(namespace, concept.publicId().asUuidArray()[0] + rxnormData.getRxnormSynonym() + "SDESC")));
                 session.compose((SemanticAssembler semanticAssembler) -> semanticAssembler
                         .semantic(semantic)
-                        .pattern(TinkarTerm.DESCRIPTION_PATTERN)
+                        .pattern(DESCRIPTION_PATTERN)
                         .reference(concept)
                         .fieldValues(fieldValues -> fieldValues
-                                .with(TinkarTerm.ENGLISH_LANGUAGE)
+                                .with(ENGLISH_LANGUAGE)
                                 .with(rxnormData.getRxnormSynonym())
-                                .with(TinkarTerm.DESCRIPTION_NOT_CASE_SENSITIVE)
+                                .with(DESCRIPTION_NOT_CASE_SENSITIVE)
                                 .with(REGULAR_NAME_DESCRIPTION_TYPE)
                         ));
             }
@@ -210,12 +215,12 @@ public class RxnormTransformationMojo extends AbstractMojo {
                         PublicIds.of(UuidT5Generator.get(namespace, concept.publicId().asUuidArray()[0] + rxnormData.getPrescribableSynonym() + "PSDESC")));
                 session.compose((SemanticAssembler semanticAssembler) -> semanticAssembler
                         .semantic(semantic)
-                        .pattern(TinkarTerm.DESCRIPTION_PATTERN)
+                        .pattern(DESCRIPTION_PATTERN)
                         .reference(concept)
                         .fieldValues(fieldValues -> fieldValues
-                                .with(TinkarTerm.ENGLISH_LANGUAGE)
+                                .with(ENGLISH_LANGUAGE)
                                 .with(rxnormData.getPrescribableSynonym())
-                                .with(TinkarTerm.DESCRIPTION_NOT_CASE_SENSITIVE)
+                                .with(DESCRIPTION_NOT_CASE_SENSITIVE)
                                 .with(REGULAR_NAME_DESCRIPTION_TYPE)
                         ));
             }
@@ -236,8 +241,8 @@ public class RxnormTransformationMojo extends AbstractMojo {
 
             if(!rxnormData.getSnomedCtId().isEmpty()) {
                 EntityProxy.Semantic semantic = EntityProxy.Semantic.make(
-                        PublicIds.of(UuidT5Generator.get(namespace, concept.publicId().asUuidArray()[0] + rxnormData.getSnomedCtId() + "ID")));
-                EntityProxy.Concept snomedIdentifier = EntityProxy.Concept.make(PublicIds.of(UUID.fromString("ed73f32d-c068-43f8-9767-ace6dfee44db")));
+                        PublicIds.of(UuidT5Generator.get(namespace, concept.publicId().asUuidArray()[0] + rxnormData.getSnomedCtId() + "SNOMEDID")));
+                EntityProxy.Concept snomedIdentifier = RxnormUtility.getSnomedIdentifierConcept();
                 session.compose((SemanticAssembler semanticAssembler) -> semanticAssembler
                         .semantic(semantic)
                         .pattern(IDENTIFIER_PATTERN)
@@ -250,8 +255,8 @@ public class RxnormTransformationMojo extends AbstractMojo {
 
             if(!rxnormData.getRxCuiId().isEmpty()){
                 EntityProxy.Semantic semantic = EntityProxy.Semantic.make(
-                        PublicIds.of(UuidT5Generator.get(namespace, concept.publicId().asUuidArray()[0] + rxnormData.getRxCuiId() + "ID")));
-                EntityProxy.Concept rxnormIdentifier = EntityProxy.Concept.make(PublicIds.of(UUID.fromString("e409e4ce-4527-49a0-bdc6-f4fe79c21088")));
+                        PublicIds.of(UuidT5Generator.get(namespace, concept.publicId().asUuidArray()[0] + rxnormData.getRxCuiId() + "RXID")));
+                EntityProxy.Concept rxnormIdentifier = RxnormUtility.getRxcuidConcept();
                 session.compose((SemanticAssembler semanticAssembler) -> semanticAssembler
                         .semantic(semantic)
                         .pattern(IDENTIFIER_PATTERN)
@@ -263,8 +268,8 @@ public class RxnormTransformationMojo extends AbstractMojo {
             }
             if(!rxnormData.getVuidId().isEmpty()){
                 EntityProxy.Semantic semantic = EntityProxy.Semantic.make(
-                        PublicIds.of(UuidT5Generator.get(namespace, concept.publicId().asUuidArray()[0] + rxnormData.getVuidId() + "ID")));
-                EntityProxy.Concept vhIdentifier = EntityProxy.Concept.make(PublicIds.of(UUID.fromString("5d06759b-56f7-4c24-be70-5cea09e0e130")));
+                        PublicIds.of(UuidT5Generator.get(namespace, concept.publicId().asUuidArray()[0] + rxnormData.getVuidId() + "VUID")));
+                EntityProxy.Concept vhIdentifier = RxnormUtility.getVuidConcept();
                 session.compose((SemanticAssembler semanticAssembler) -> semanticAssembler
                         .semantic(semantic)
                         .pattern(IDENTIFIER_PATTERN)
@@ -275,7 +280,7 @@ public class RxnormTransformationMojo extends AbstractMojo {
                         ));
             }
             if(!rxnormData.getNdcCodesWithEndDates().isEmpty()){
-                EntityProxy.Concept ndcIdentifier = EntityProxy.Concept.make(PublicIds.of(UUID.fromString("88f22a11-3715-4d58-8cb4-aa14d49a6b35")));
+                EntityProxy.Concept ndcIdentifier = RxnormUtility.getNdcIdentifierConcept();
                 String fileDate = new SimpleDateFormat("yyyyMM").format(new Date(time));
 
                 for (Map.Entry<String, String> entry : rxnormData.getNdcCodesWithEndDates().entrySet()) {
@@ -289,7 +294,7 @@ public class RxnormTransformationMojo extends AbstractMojo {
                     }
 
                     EntityProxy.Semantic semantic = EntityProxy.Semantic.make(
-                            PublicIds.of(UuidT5Generator.get(namespace, concept.publicId().asUuidArray()[0] + ndcCode + "ID")));
+                            PublicIds.of(UuidT5Generator.get(namespace, concept.publicId().asUuidArray()[0] + ndcCode + "NDCID")));
 
                     Session ndcSession = composer.open(state, time, rxnormAuthor, rxnormModule, DEVELOPMENT_PATH);
                     ndcSession.compose((SemanticAssembler semanticAssembler) -> semanticAssembler
@@ -312,7 +317,7 @@ public class RxnormTransformationMojo extends AbstractMojo {
      * Creates a stated definition semantic that attaches the respective Owl String to the semantic
      */
     private void createStatedDefinitionSemantics(Session session, EntityProxy.Concept concept, RxnormData rxnormData) {
-        String owlExpression = rxnormData.getEquivalentClassesStr();
+        String owlExpression = RxnormUtility.transformOwlString(rxnormData.getEquivalentClassesStr());
         EntityProxy.Semantic axiomSemantic = EntityProxy.Semantic.make(PublicIds.of(UuidT5Generator.get(namespace, concept.publicId().asUuidArray()[0] + rxnormData.getEquivalentClassesStr() + "AXIOM")));
         try {
             session.compose(new AxiomSyntax()
@@ -321,6 +326,108 @@ public class RxnormTransformationMojo extends AbstractMojo {
                     concept);
         } catch (Exception e) {
             LOG.error("Error creating state definition semantic for concept: " + concept, e);
+        }
+    }
+
+    private void createPatternSemantics(Session session, EntityProxy.Concept concept, RxnormData rxnormData) {
+        try {
+            if(!rxnormData.getQualitativeDistinction().isEmpty()) {
+                EntityProxy.Pattern qualitativeDistinctionPattern = RxnormUtility.getQualitativeDistinctionPattern();
+                EntityProxy.Semantic semantic = EntityProxy.Semantic.make(
+                        PublicIds.of(UuidT5Generator.get(namespace, concept.publicId().asUuidArray()[0] + rxnormData.getQualitativeDistinction() + "QD")));
+                session.compose((SemanticAssembler semanticAssembler) -> semanticAssembler
+                            .semantic(semantic)
+                            .reference(concept)
+                            .pattern(qualitativeDistinctionPattern)
+                            .fieldValues(fv -> fv
+                                    .with(rxnormData.getQualitativeDistinction())
+                                    .with(ENGLISH_LANGUAGE)
+                            ));
+            }
+
+            if(!rxnormData.getQuantity().isEmpty()) {
+                EntityProxy.Pattern quantityPattern = RxnormUtility.getQuantityPattern();
+                EntityProxy.Semantic semantic = EntityProxy.Semantic.make(
+                        PublicIds.of(UuidT5Generator.get(namespace, concept.publicId().asUuidArray()[0] + rxnormData.getQualitativeDistinction() + "QUANTITY")));
+                session.compose((SemanticAssembler semanticAssembler) -> semanticAssembler
+                        .semantic(semantic)
+                        .reference(concept)
+                        .pattern(quantityPattern)
+                        .fieldValues(fv -> fv.with(rxnormData.getQuantity())
+                        ));
+            }
+
+            if(!rxnormData.getSchedule().isEmpty()) {
+                EntityProxy.Pattern schedulePattern = RxnormUtility.getSchedulePattern();
+                EntityProxy.Semantic semantic = EntityProxy.Semantic.make(
+                        PublicIds.of(UuidT5Generator.get(namespace, concept.publicId().asUuidArray()[0] + rxnormData.getQualitativeDistinction() + "SCHEDULE")));
+                session.compose((SemanticAssembler semanticAssembler) -> semanticAssembler
+                        .semantic(semantic)
+                        .reference(concept)
+                        .pattern(schedulePattern)
+                        .fieldValues(fv -> fv
+                                .with(rxnormData.getSchedule())
+                                .with(ENGLISH_LANGUAGE)
+                        ));
+            }
+
+            if(!rxnormData.getHumanDrug().isEmpty()) {
+                EntityProxy.Pattern humanDrugPattern = RxnormUtility.getHumanDrugPattern();
+                EntityProxy.Semantic semantic = EntityProxy.Semantic.make(
+                        PublicIds.of(UuidT5Generator.get(namespace, concept.publicId().asUuidArray()[0] + rxnormData.getQualitativeDistinction() + "HD")));
+                session.compose((SemanticAssembler semanticAssembler) -> semanticAssembler
+                        .semantic(semantic)
+                        .reference(concept)
+                        .pattern(humanDrugPattern)
+                        .fieldValues(fv -> fv.with(rxnormData.getHumanDrug())
+                        ));
+            }
+
+            if(!rxnormData.getVetDrug().isEmpty()) {
+                EntityProxy.Pattern vetDrugPattern = RxnormUtility.getVetDrugPattern();
+                EntityProxy.Semantic semantic = EntityProxy.Semantic.make(
+                        PublicIds.of(UuidT5Generator.get(namespace, concept.publicId().asUuidArray()[0] + rxnormData.getQualitativeDistinction() + "VD")));
+                session.compose((SemanticAssembler semanticAssembler) -> semanticAssembler
+                        .semantic(semantic)
+                        .reference(concept)
+                        .pattern(vetDrugPattern)
+                        .fieldValues(fv -> fv.with(rxnormData.getVetDrug())
+                        ));
+            }
+             createTallmanSynonymPattern(session, concept, rxnormData);
+        } catch (Exception e) {
+            LOG.error("Error creating pattern semantic for concept: " + concept, e);
+        }
+    }
+
+    private void createTallmanSynonymPattern(Session session, EntityProxy.Concept concept, RxnormData rxnormData){
+        if(!rxnormData.getTallmanSynonyms().isEmpty()) {
+            EntityProxy.Concept tallmanSynonymDescriptionConcept = RxnormUtility.getTallmanSynonymDescriptionConcept();
+            rxnormData.getTallmanSynonyms().forEach(synonym -> {
+                EntityProxy.Semantic descSemantic = EntityProxy.Semantic.make(
+                        PublicIds.of(UuidT5Generator.get(namespace, concept.publicId().asUuidArray()[0] + synonym + "TSDESC")));
+                session.compose((SemanticAssembler semanticAssembler) -> semanticAssembler
+                        .semantic(descSemantic)
+                        .pattern(DESCRIPTION_PATTERN)
+                        .reference(concept)
+                        .fieldValues(fieldValues -> fieldValues
+                                .with(ENGLISH_LANGUAGE)
+                                .with(synonym)
+                                .with(DESCRIPTION_CASE_SENSITIVE)
+                                .with(tallmanSynonymDescriptionConcept)
+                        ));
+
+                EntityProxy.Pattern tallmanSynonymPattern = RxnormUtility.getTallmanSynonymPattern();
+                EntityProxy.Semantic patternSemantic = EntityProxy.Semantic.make(
+                        PublicIds.of(UuidT5Generator.get(namespace, concept.publicId().asUuidArray()[0] + rxnormData.getQualitativeDistinction() + "VD")));
+                session.compose((SemanticAssembler semanticAssembler) -> semanticAssembler
+                        .semantic(patternSemantic)
+                        .reference(descSemantic)
+                        .pattern(tallmanSynonymPattern)
+                        .fieldValues(fv -> fv
+                                .with(synonym)
+                        ));
+            });
         }
     }
 
@@ -454,6 +561,43 @@ public class RxnormTransformationMojo extends AbstractMojo {
             String ndcCode = ndcMatcher.group(2);
             data.addNdcCodeWithEndDate(ndcCode, endDate);
         }
+
+        // Extract QUALITATIVE_DISTINCTION
+        Matcher qualitativeDistinctionMatcher = Pattern.compile(":QUALITATIVE_DISTINCTION <[^>]+> \"([^\"]*)\"").matcher(block);
+        if (qualitativeDistinctionMatcher.find()) {
+            data.setQualitativeDistinction(qualitativeDistinctionMatcher.group(1));
+        }
+
+        // Extract QUANTITY
+        Matcher quantityMatcher = Pattern.compile(":QUANTITY <[^>]+> \"([^\"]*)\"").matcher(block);
+        if (quantityMatcher.find()) {
+            data.setQuantity(quantityMatcher.group(1));
+        }
+
+        // Extract SCHEDULE
+        Matcher scheduleMatcher = Pattern.compile(":SCHEDULE <[^>]+> \"([^\"]*)\"").matcher(block);
+        if (scheduleMatcher.find()) {
+            data.setSchedule(scheduleMatcher.group(1));
+        }
+
+        // Extract HUMAN_DRUG
+        Matcher humanDrugMatcher = Pattern.compile(":HUMAN_DRUG <[^>]+> \"([^\"]*)\"").matcher(block);
+        if (humanDrugMatcher.find()) {
+            data.setHumanDrug(humanDrugMatcher.group(1));
+        }
+
+        // Extract VET_DRUG
+        Matcher vetDrugMatcher = Pattern.compile(":VET_DRUG <[^>]+> \"([^\"]*)\"").matcher(block);
+        if (vetDrugMatcher.find()) {
+            data.setVetDrug(vetDrugMatcher.group(1));
+        }
+
+        // Extract TALLMAN_SYNONYM (can have multiple)
+        Matcher tallmanSynonymMatcher = Pattern.compile(":Tallman_Synonym <[^>]+> \"([^\"]*)\"").matcher(block);
+        while (tallmanSynonymMatcher.find()) {
+            data.addTallmanSynonym(tallmanSynonymMatcher.group(1));
+        }
+
     }
 
 
@@ -520,6 +664,12 @@ public class RxnormTransformationMojo extends AbstractMojo {
         private String vuidId = "";
         private List<String> ndcCodes = new ArrayList<>();
         private Map<String, String> ndcCodesWithEndDates = new HashMap<>();
+        private String qualitativeDistinction = "";
+        private String quantity = "";
+        private String schedule = "";
+        private String humanDrug = "";
+        private String vetDrug = "";
+        private List<String> tallmanSynonyms = new ArrayList<>();
         private String equivalentClassesStr = "";
 
         public RxnormData(String uri) {
@@ -561,6 +711,30 @@ public class RxnormTransformationMojo extends AbstractMojo {
             this.ndcCodes.add(ndcCode);
         }
 
+        public void setQualitativeDistinction(String qualitativeDistinction) {
+            this.qualitativeDistinction = qualitativeDistinction;
+        }
+
+        public void setQuantity(String quantity) {
+            this.quantity = quantity;
+        }
+
+        public void setSchedule(String schedule) {
+            this.schedule = schedule;
+        }
+
+        public void setHumanDrug(String humanDrug) {
+            this.humanDrug = humanDrug;
+        }
+
+        public void setVetDrug(String vetDrug) {
+            this.vetDrug = vetDrug;
+        }
+
+        public void addTallmanSynonym(String tallmanSynonym) {
+            this.tallmanSynonyms.add(tallmanSynonym);
+        }
+
         public void setEquivalentClassesStr(String equivalentClassesStr) {
             this.equivalentClassesStr = equivalentClassesStr;
         }
@@ -600,6 +774,30 @@ public class RxnormTransformationMojo extends AbstractMojo {
 
         public List<String> getNdcCodes() {
             return ndcCodes;
+        }
+
+        public String getQualitativeDistinction(){
+            return qualitativeDistinction;
+        }
+
+        public String getQuantity(){
+            return quantity;
+        }
+
+        public String getSchedule(){
+            return schedule;
+        }
+
+        public String getHumanDrug() {
+            return  humanDrug;
+        }
+
+        public String getVetDrug() {
+            return vetDrug;
+        }
+
+        public List<String> getTallmanSynonyms(){
+            return tallmanSynonyms;
         }
 
         public String getEquivalentClassesStr() {

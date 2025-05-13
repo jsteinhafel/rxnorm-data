@@ -36,14 +36,10 @@ public class RxnormConceptSemanticIT extends AbstractIntegrationTest {
 
     @Override
     protected boolean assertOwlElement(RxnormData rxnormData) {
-        boolean temp = false;
-        UUID conceptUuid = null;
-        StateSet state = null;
-
         if (rxnormData.getId() != null) {
             // Generate UUID based on RxNorm ID
-            conceptUuid = uuid(rxnormData.getId());
-            state = StateSet.ACTIVE;
+            UUID conceptUuid = uuid(rxnormData.getId());
+            StateSet state = StateSet.ACTIVE;
             StampPositionRecord stampPosition = StampPositionRecord.make(timeForStamp, TinkarTerm.DEVELOPMENT_PATH.nid());
             StampCalculator stampCalc = StampCoordinateRecord.make(state, stampPosition).stampCalculator();
             ConceptRecord entity = EntityService.get().getEntityFast(conceptUuid);
@@ -51,12 +47,7 @@ public class RxnormConceptSemanticIT extends AbstractIntegrationTest {
 
             return latest.isPresent();
         }
-//        else {
-//            System.out.println("rxnormData.toString(): " + rxnormData.toString());
-//            temp = true;
-//        }
-
-        return temp;
+        return false;
     }
 
 }

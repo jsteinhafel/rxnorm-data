@@ -96,7 +96,7 @@ public abstract class AbstractIntegrationTest {
             for (RxnormData rxnormConcept : rxnormConcepts) {
                 if (!assertOwlElement(rxnormConcept)) {
                     notFound++;
-                    System.out.print("rxnormConcept.toString(): " + rxnormConcept.toString());
+                    LOG.info("Element rxnormConcept NOT Found: " + rxnormConcept.toString());
                     bw.write(rxnormConcept.toString());
                     bw.newLine();
                 }

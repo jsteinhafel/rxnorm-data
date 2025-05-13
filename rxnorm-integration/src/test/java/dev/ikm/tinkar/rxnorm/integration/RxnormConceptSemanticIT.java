@@ -1,0 +1,62 @@
+package dev.ikm.tinkar.rxnorm.integration;
+
+import dev.ikm.maven.RxnormData;
+import dev.ikm.tinkar.coordinate.stamp.StampCoordinateRecord;
+import dev.ikm.tinkar.coordinate.stamp.StampPositionRecord;
+import dev.ikm.tinkar.coordinate.stamp.StateSet;
+import dev.ikm.tinkar.coordinate.stamp.calculator.Latest;
+import dev.ikm.tinkar.coordinate.stamp.calculator.StampCalculator;
+import dev.ikm.tinkar.entity.ConceptRecord;
+import dev.ikm.tinkar.entity.ConceptVersionRecord;
+import dev.ikm.tinkar.entity.EntityService;
+import dev.ikm.tinkar.terms.TinkarTerm;
+import org.junit.jupiter.api.Test;
+
+import java.io.IOException;
+import java.util.UUID;
+
+import static org.junit.jupiter.api.Assertions.assertEquals;
+
+public class RxnormConceptSemanticIT extends AbstractIntegrationTest {
+
+    /**
+     * Test RxnormConcepts Semantics.
+     *
+     * @result Reads content from file and validates Concept of Semantics by calling private method assertConcept().
+     */
+    @Test
+    public void testRxnormConceptSemantics() throws IOException {
+        String sourceFilePath = "../rxnorm-origin/";
+        String errorFile = "target/failsafe-reports/Rxnorm_Concepts_not_found.txt";
+        String absolutePath = findFilePath(sourceFilePath, rxnormOwlFileName);
+        int notFound = processOwlFile(absolutePath, errorFile);
+
+        assertEquals(0, notFound, "Unable to find " + notFound + " Rxnorm Concept semantics. Details written to " + errorFile);
+    }
+
+    @Override
+    protected boolean assertOwlElement(RxnormData rxnormData) {
+        boolean temp = false;
+        UUID conceptUuid = null;
+        StateSet state = null;
+
+        if (rxnormData.getId() != null) {
+            // Generate UUID based on RxNorm ID
+            conceptUuid = uuid(rxnormData.getId());
+            state = StateSet.ACTIVE;
+            StampPositionRecord stampPosition = StampPositionRecord.make(timeForStamp, TinkarTerm.DEVELOPMENT_PATH.nid());
+            StampCalculator stampCalc = StampCoordinateRecord.make(state, stampPosition).stampCalculator();
+            ConceptRecord entity = EntityService.get().getEntityFast(conceptUuid);
+            Latest<ConceptVersionRecord> latest = stampCalc.latest(entity);
+
+            return latest.isPresent();
+        }
+//        else {
+//            System.out.println("rxnormData.toString(): " + rxnormData.toString());
+//            temp = true;
+//        }
+
+        return temp;
+    }
+
+}

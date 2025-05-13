@@ -24,19 +24,21 @@ import org.apache.maven.plugins.annotations.Parameter;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.io.*;
-import java.text.ParseException;
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileOutputStream;
+import java.io.IOException;
 import java.text.SimpleDateFormat;
-
-import java.util.*;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
+import java.util.Date;
+import java.util.List;
+import java.util.Map;
+import java.util.UUID;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipInputStream;
 
-import static dev.ikm.tinkar.terms.TinkarTerm.IDENTIFIER_PATTERN;
 import static dev.ikm.tinkar.terms.TinkarTerm.DEVELOPMENT_PATH;
 import static dev.ikm.tinkar.terms.TinkarTerm.FULLY_QUALIFIED_NAME_DESCRIPTION_TYPE;
+import static dev.ikm.tinkar.terms.TinkarTerm.IDENTIFIER_PATTERN;
 import static dev.ikm.tinkar.terms.TinkarTerm.REGULAR_NAME_DESCRIPTION_TYPE;
 
 @Mojo(name = "run-rxnorm-transformation", defaultPhase = LifecyclePhase.INSTALL)
@@ -104,19 +106,21 @@ public class RxnormTransformationMojo extends AbstractMojo {
         }
     }
 
-
+    /**
+     * Process OWL file and Creates Concepts for each Class
+     */
     private void createConcepts(Composer composer){
         LOG.info("Starting to create concepts from RxNorm OWL file...");
 
         // Parse the date from the filename
         String fileName = rxnormOwl.getName();
-        long timeForStamp = parseTimeFromFileName(fileName);
+        long timeForStamp = RxnormUtility.parseTimeFromFileName(fileName);
 
         try {
-            String owlContent = readFile(rxnormOwl);
+            String owlContent = RxnormUtility.readFile(rxnormOwl);
 
             // Process the OWL content to extract class declarations and annotations
-            List<RxnormData> rxnormConcepts = extractRxnormData(owlContent);
+            List<RxnormData> rxnormConcepts = RxnormUtility.extractRxnormData(owlContent);
 
             LOG.info("Found " + rxnormConcepts.size() + " class declarations in the OWL file");
 
@@ -374,236 +378,4 @@ public class RxnormTransformationMojo extends AbstractMojo {
         PrimitiveData.start();
     }
 
-    /**
-     * Extracts RxNorm attributes from the OWL content
-     */
-    private List<RxnormData> extractRxnormData(String owlContent) {
-        List<RxnormData> attributes = new ArrayList<>();
-
-        // Split the content by "# Class:" to identify each concept section
-        String[] classBlocks = owlContent.split("# Class: ");
-
-        // Skip the first block as it's before the first "# Class:"
-        for (int i = 1; i < classBlocks.length; i++) {
-            String block = classBlocks[i];
-            // Extract the URI from the first line
-            // Format: <http://mor.nlm.nih.gov/RXNORM/996062> (meclizine hydrochloride 25 MG Oral Film)
-            Matcher uriMatcher = Pattern.compile("<([^>]+)>").matcher(block);
-
-            if (uriMatcher.find()) {
-                String uri = uriMatcher.group(1);
-                RxnormData concept = new RxnormData(uri);
-
-                // Extract annotations
-                extractAnnotations(block, concept);
-
-                // Extract EquivalentClasses
-                extractEquivalentClasses(block, concept);
-
-                attributes.add(concept);
-            }
-        }
-
-        return attributes;
-    }
-
-    /**
-     * Extracts annotations from a class block
-     */
-    private void extractAnnotations(String block, RxnormData data) {
-        // Extract RxNorm_Name
-        Matcher rxnormNameMatcher = Pattern.compile(":RxNorm_Name <[^>]+> \"([^\"]*)\"").matcher(block);
-        if (rxnormNameMatcher.find()) {
-            data.setRxnormName(rxnormNameMatcher.group(1));
-        }
-
-        // Extract RxNorm_Synonym
-        Matcher rxnormSynonymMatcher = Pattern.compile(":RxNorm_Synonym <[^>]+> \"([^\"]*)\"").matcher(block);
-        if (rxnormSynonymMatcher.find()) {
-            data.setRxnormSynonym(rxnormSynonymMatcher.group(1));
-        }
-
-        // Extract Prescribable_Synonym
-        Matcher prescribableSynonymMatcher = Pattern.compile(":Prescribable_Synonym <[^>]+> \"([^\"]*)\"").matcher(block);
-        if (prescribableSynonymMatcher.find()) {
-            data.setPrescribableSynonym(prescribableSynonymMatcher.group(1));
-        }
-
-        // Extract SNOMED CT identifier
-        Matcher snomedCtMatcher = Pattern.compile("oboInOwl:hasDbXref <[^>]+> \"SNOMEDCT:\\s*([^\"]*)\"").matcher(block);
-        if (snomedCtMatcher.find()) {
-            data.setSnomedCtId(snomedCtMatcher.group(1));
-        }
-
-        // Extract RxCUI identifier
-        Matcher rxCuiMatcher = Pattern.compile("oboInOwl:hasDbXref <[^>]+> \"RxCUI:\\s*([^\"]*)\"").matcher(block);
-        if (rxCuiMatcher.find()) {
-            data.setRxCuiId(rxCuiMatcher.group(1));
-        }
-
-        // Extract VUID identifier
-        Matcher vuidMatcher = Pattern.compile("oboInOwl:hasDbXref <[^>]+> \"VUID:\\s*([^\"]*)\"").matcher(block);
-        if (vuidMatcher.find()) {
-            data.setVuidId(vuidMatcher.group(1));
-        }
-
-        // Extract NDC codes with their start and end dates
-        Matcher ndcMatcher = Pattern.compile("AnnotationAssertion\\(Annotation\\(:endDate \"(\\d+)\"\\) Annotation\\(:startDate \"\\d+\"\\) :ndc <[^>]+> \"([^\"]*)\"\\)").matcher(block);
-        while (ndcMatcher.find()) {
-            String endDate = ndcMatcher.group(1);
-            String ndcCode = ndcMatcher.group(2);
-            data.addNdcCodeWithEndDate(ndcCode, endDate);
-        }
-    }
-
-
-    /**
-     * Extracts EquivalentClasses from a class block
-     */
-    private void extractEquivalentClasses(String block, RxnormData concept) {
-        // Extract EquivalentClasses
-        // Format: EquivalentClasses(<http://mor.nlm.nih.gov/RXNORM/996062> ObjectIntersectionOf(...))
-        Matcher equivClassesMatcher = Pattern.compile("EquivalentClasses\\(<[^>]+> ([^)]+)\\)").matcher(block);
-        if (equivClassesMatcher.find()) {
-            String equivalentClasses = equivClassesMatcher.group(1);
-            concept.setEquivalentClassesStr(equivalentClasses);
-        }
-    }
-
-    private String readFile(File file) throws IOException {
-        StringBuilder content = new StringBuilder();
-        try (BufferedReader reader = new BufferedReader(new FileReader(file))) {
-            String line;
-            while ((line = reader.readLine()) != null) {
-                content.append(line).append("\n");
-            }
-        }
-        return content.toString();
-    }
-    /**
-     * Parses the timestamp from the file name
-     * Expected format: something-YYYY-MM-DD-something.owl
-     */
-    private long parseTimeFromFileName(String fileName) {
-        try {
-            // Extract the date portion using regex
-            Pattern pattern = Pattern.compile("(\\d{4}-\\d{2}-\\d{2})");
-            Matcher matcher = pattern.matcher(fileName);
-
-            if (matcher.find()) {
-                String dateStr = matcher.group(1);
-                SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd");
-                return sdf.parse(dateStr).getTime();
-            } else {
-                LOG.warn("Could not extract date from file name: " + fileName);
-                return System.currentTimeMillis(); // Fallback to current time
-            }
-        } catch (ParseException e) {
-            LOG.error("Error parsing date from file name: " + fileName, e);
-            return System.currentTimeMillis(); // Fallback to current time
-        }
-    }
-
-    /**
-     * Helper class to store RxNorm concept data
-     */
-    private static class RxnormData {
-        private String id;
-        private String uri;
-
-        private String rxnormName = "";
-        private String rxnormSynonym = "";
-        private String prescribableSynonym = "";
-
-        private String snomedCtId = "";
-        private String rxCuiId = "";
-        private String vuidId = "";
-        private List<String> ndcCodes = new ArrayList<>();
-        private Map<String, String> ndcCodesWithEndDates = new HashMap<>();
-        private String equivalentClassesStr = "";
-
-        public RxnormData(String uri) {
-            this.uri = uri;
-            if (uri.startsWith("http://mor.nlm.nih.gov/RXNORM/")) {
-                this.id = uri.substring("http://mor.nlm.nih.gov/RXNORM/".length());
-            }
-        }
-
-        public String getId() {
-            return id;
-        }
-
-        public void setRxnormName(String rxnormName) {
-            this.rxnormName = rxnormName;
-        }
-
-        public void setRxnormSynonym(String rxnormSynonym) {
-            this.rxnormSynonym = rxnormSynonym;
-        }
-
-        public void setPrescribableSynonym(String prescribableSynonym) {
-            this.prescribableSynonym = prescribableSynonym;
-        }
-
-        public void setSnomedCtId(String snomedCtId) {
-            this.snomedCtId = snomedCtId;
-        }
-
-        public void setRxCuiId(String rxCuiId) {
-            this.rxCuiId = rxCuiId;
-        }
-
-        public void setVuidId(String vuidId) {
-            this.vuidId = vuidId;
-        }
-
-        public void addNdcCode(String ndcCode) {
-            this.ndcCodes.add(ndcCode);
-        }
-
-        public void setEquivalentClassesStr(String equivalentClassesStr) {
-            this.equivalentClassesStr = equivalentClassesStr;
-        }
-        public void addNdcCodeWithEndDate(String ndcCode, String endDate) {
-            this.ndcCodes.add(ndcCode); // Keep original list for backward compatibility
-            this.ndcCodesWithEndDates.put(ndcCode, endDate);
-        }
-
-        public Map<String, String> getNdcCodesWithEndDates() {
-            return ndcCodesWithEndDates;
-        }
-
-
-        public String getRxnormName() {
-            return rxnormName;
-        }
-
-        public String getRxnormSynonym() {
-            return rxnormSynonym;
-        }
-
-        public String getPrescribableSynonym() {
-            return prescribableSynonym;
-        }
-
-        public String getSnomedCtId() {
-            return snomedCtId;
-        }
-
-        public String getRxCuiId() {
-            return rxCuiId;
-        }
-
-        public String getVuidId() {
-            return vuidId;
-        }
-
-        public List<String> getNdcCodes() {
-            return ndcCodes;
-        }
-
-        public String getEquivalentClassesStr() {
-            return equivalentClassesStr;
-        }
-    }
 }

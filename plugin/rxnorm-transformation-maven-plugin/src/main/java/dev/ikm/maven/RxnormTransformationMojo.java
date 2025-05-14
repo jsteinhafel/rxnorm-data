@@ -317,7 +317,7 @@ public class RxnormTransformationMojo extends AbstractMojo {
      * Creates a stated definition semantic that attaches the respective Owl String to the semantic
      */
     private void createStatedDefinitionSemantics(Session session, EntityProxy.Concept concept, RxnormData rxnormData) {
-        String owlExpression = RxnormUtility.transformOwlString(rxnormData.getEquivalentClassesStr());
+        String owlExpression = RxnormUtility.transformOwlString(namespace, rxnormData.getEquivalentClassesStr());
         EntityProxy.Semantic axiomSemantic = EntityProxy.Semantic.make(PublicIds.of(UuidT5Generator.get(namespace, concept.publicId().asUuidArray()[0] + rxnormData.getEquivalentClassesStr() + "AXIOM")));
         try {
             session.compose(new AxiomSyntax()
@@ -414,7 +414,7 @@ public class RxnormTransformationMojo extends AbstractMojo {
                                 .with(ENGLISH_LANGUAGE)
                                 .with(synonym)
                                 .with(DESCRIPTION_CASE_SENSITIVE)
-                                .with(tallmanSynonymDescriptionConcept)
+                                .with(REGULAR_NAME_DESCRIPTION_TYPE)
                         ));
 
                 EntityProxy.Pattern tallmanSynonymPattern = RxnormUtility.getTallmanSynonymPattern();
@@ -425,7 +425,7 @@ public class RxnormTransformationMojo extends AbstractMojo {
                         .reference(descSemantic)
                         .pattern(tallmanSynonymPattern)
                         .fieldValues(fv -> fv
-                                .with(synonym)
+                                .with(PREFERRED)
                         ));
             });
         }
@@ -605,12 +605,28 @@ public class RxnormTransformationMojo extends AbstractMojo {
      * Extracts EquivalentClasses from a class block
      */
     private void extractEquivalentClasses(String block, RxnormData concept) {
-        // Extract EquivalentClasses
-        // Format: EquivalentClasses(<http://mor.nlm.nih.gov/RXNORM/996062> ObjectIntersectionOf(...))
-        Matcher equivClassesMatcher = Pattern.compile("EquivalentClasses\\(<[^>]+> ([^)]+)\\)").matcher(block);
-        if (equivClassesMatcher.find()) {
-            String equivalentClasses = equivClassesMatcher.group(1);
-            concept.setEquivalentClassesStr(equivalentClasses);
+        // Extract the entire EquivalentClasses block with nested parentheses
+        int startIndex = block.indexOf("EquivalentClasses(");
+        if (startIndex != -1) {
+            // Find the matching closing parenthesis by counting opening and closing parentheses
+            int openParenCount = 1;
+            int endIndex = startIndex + "EquivalentClasses(".length();
+
+            while (openParenCount > 0 && endIndex < block.length()) {
+                char c = block.charAt(endIndex);
+                if (c == '(') {
+                    openParenCount++;
+                } else if (c == ')') {
+                    openParenCount--;
+                }
+                endIndex++;
+            }
+
+            if (openParenCount == 0) {
+                // Extract the full block including "EquivalentClasses"
+                String fullEquivalentClasses = block.substring(startIndex, endIndex);
+                concept.setEquivalentClassesStr(fullEquivalentClasses);
+            }
         }
     }
 

@@ -36,7 +36,7 @@
         <!-- origin -->
         <origin.working.directory>${project.build.directory}/origin-sources</origin.working.directory>
         <source.zip>Pilot-Defined-RxNorm-with-SNCT-classes-2024-04-10-with-custom-annotations</source.zip>
-        <origin.namespace>7b880c4c-8e54-5625-863c-c8504fa78243</origin.namespace>
+        <origin.namespace>3094dbd1-60cf-44a6-92e3-0bb32ca4d3de</origin.namespace>
     </properties>
     <dependencyManagement>
         <dependencies>

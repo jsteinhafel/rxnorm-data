@@ -1,5 +1,6 @@
 package dev.ikm.maven;
 
+import dev.ikm.tinkar.common.id.*;
 import dev.ikm.tinkar.common.util.uuid.UuidT5Generator;
 import dev.ikm.tinkar.terms.EntityProxy;
 import org.slf4j.Logger;
@@ -14,7 +15,6 @@ import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
-import java.util.regex.*;
 
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -83,6 +83,10 @@ public class RxnormUtility {
         return attributes;
     }
 
+
+    /**
+     * Extracts EquivalentClasses from a class block
+     */
     /**
      * Extracts annotations from a class block
      */
@@ -130,19 +134,71 @@ public class RxnormUtility {
             String ndcCode = ndcMatcher.group(2);
             data.addNdcCodeWithEndDate(ndcCode, endDate);
         }
-    }
 
+        // Extract QUALITATIVE_DISTINCTION
+        Matcher qualitativeDistinctionMatcher = Pattern.compile(":QUALITATIVE_DISTINCTION <[^>]+> \"([^\"]*)\"").matcher(block);
+        if (qualitativeDistinctionMatcher.find()) {
+            data.setQualitativeDistinction(qualitativeDistinctionMatcher.group(1));
+        }
+
+        // Extract QUANTITY
+        Matcher quantityMatcher = Pattern.compile(":QUANTITY <[^>]+> \"([^\"]*)\"").matcher(block);
+        if (quantityMatcher.find()) {
+            data.setQuantity(quantityMatcher.group(1));
+        }
+
+        // Extract SCHEDULE
+        Matcher scheduleMatcher = Pattern.compile(":SCHEDULE <[^>]+> \"([^\"]*)\"").matcher(block);
+        if (scheduleMatcher.find()) {
+            data.setSchedule(scheduleMatcher.group(1));
+        }
+
+        // Extract HUMAN_DRUG
+        Matcher humanDrugMatcher = Pattern.compile(":HUMAN_DRUG <[^>]+> \"([^\"]*)\"").matcher(block);
+        if (humanDrugMatcher.find()) {
+            data.setHumanDrug(humanDrugMatcher.group(1));
+        }
+
+        // Extract VET_DRUG
+        Matcher vetDrugMatcher = Pattern.compile(":VET_DRUG <[^>]+> \"([^\"]*)\"").matcher(block);
+        if (vetDrugMatcher.find()) {
+            data.setVetDrug(vetDrugMatcher.group(1));
+        }
+
+        // Extract TALLMAN_SYNONYM (can have multiple)
+        Matcher tallmanSynonymMatcher = Pattern.compile(":Tallman_Synonym <[^>]+> \"([^\"]*)\"").matcher(block);
+        while (tallmanSynonymMatcher.find()) {
+            data.addTallmanSynonym(tallmanSynonymMatcher.group(1));
+        }
+
+    }
 
     /**
      * Extracts EquivalentClasses from a class block
      */
     public static void extractEquivalentClasses(String block, RxnormData concept) {
-        // Extract EquivalentClasses
-        // Format: EquivalentClasses(<http://mor.nlm.nih.gov/RXNORM/996062> ObjectIntersectionOf(...))
-        Matcher equivClassesMatcher = Pattern.compile("EquivalentClasses\\(<[^>]+> ([^)]+)\\)").matcher(block);
-        if (equivClassesMatcher.find()) {
-            String equivalentClasses = equivClassesMatcher.group(1);
-            concept.setEquivalentClassesStr(equivalentClasses);
+        // Extract the entire EquivalentClasses block with nested parentheses
+        int startIndex = block.indexOf("EquivalentClasses(");
+        if (startIndex != -1) {
+            // Find the matching closing parenthesis by counting opening and closing parentheses
+            int openParenCount = 1;
+            int endIndex = startIndex + "EquivalentClasses(".length();
+
+            while (openParenCount > 0 && endIndex < block.length()) {
+                char c = block.charAt(endIndex);
+                if (c == '(') {
+                    openParenCount++;
+                } else if (c == ')') {
+                    openParenCount--;
+                }
+                endIndex++;
+            }
+
+            if (openParenCount == 0) {
+                // Extract the full block including "EquivalentClasses"
+                String fullEquivalentClasses = block.substring(startIndex, endIndex);
+                concept.setEquivalentClassesStr(fullEquivalentClasses);
+            }
         }
     }
 

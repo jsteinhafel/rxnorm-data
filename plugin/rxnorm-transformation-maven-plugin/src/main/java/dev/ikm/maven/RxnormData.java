@@ -18,6 +18,13 @@ public class RxnormData {
     private String vuidId = "";
     private List<String> ndcCodes = new ArrayList<>();
     private Map<String, String> ndcCodesWithEndDates = new HashMap<>();
+
+    private String qualitativeDistinction = "";
+    private String quantity = "";
+    private String schedule = "";
+    private String humanDrug = "";
+    private String vetDrug = "";
+    private List<String> tallmanSynonyms = new ArrayList<>();
     private String equivalentClassesStr = "";
 
     public RxnormData(String uri) {
@@ -59,6 +66,30 @@ public class RxnormData {
         this.ndcCodes.add(ndcCode);
     }
 
+    public void setQualitativeDistinction(String qualitativeDistinction) {
+        this.qualitativeDistinction = qualitativeDistinction;
+    }
+
+    public void setQuantity(String quantity) {
+        this.quantity = quantity;
+    }
+
+    public void setSchedule(String schedule) {
+        this.schedule = schedule;
+    }
+
+    public void setHumanDrug(String humanDrug) {
+        this.humanDrug = humanDrug;
+    }
+
+    public void setVetDrug(String vetDrug) {
+        this.vetDrug = vetDrug;
+    }
+
+    public void addTallmanSynonym(String tallmanSynonym) {
+        this.tallmanSynonyms.add(tallmanSynonym);
+    }
+
     public void setEquivalentClassesStr(String equivalentClassesStr) {
         this.equivalentClassesStr = equivalentClassesStr;
     }
@@ -98,6 +129,30 @@ public class RxnormData {
 
     public List<String> getNdcCodes() {
         return ndcCodes;
+    }
+
+    public String getQualitativeDistinction(){
+        return qualitativeDistinction;
+    }
+
+    public String getQuantity(){
+        return quantity;
+    }
+
+    public String getSchedule(){
+        return schedule;
+    }
+
+    public String getHumanDrug() {
+        return  humanDrug;
+    }
+
+    public String getVetDrug() {
+        return vetDrug;
+    }
+
+    public List<String> getTallmanSynonyms(){
+        return tallmanSynonyms;
     }
 
     public String getEquivalentClassesStr() {

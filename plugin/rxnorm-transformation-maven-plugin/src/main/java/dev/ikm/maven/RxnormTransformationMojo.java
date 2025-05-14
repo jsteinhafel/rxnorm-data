@@ -23,13 +23,15 @@ import org.apache.maven.plugins.annotations.Parameter;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.io.*;
-import java.text.ParseException;
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileOutputStream;
+import java.io.IOException;
 import java.text.SimpleDateFormat;
-
-import java.util.*;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
+import java.util.Date;
+import java.util.List;
+import java.util.Map;
+import java.util.UUID;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipInputStream;
 
@@ -40,6 +42,7 @@ import static dev.ikm.tinkar.terms.TinkarTerm.ENGLISH_LANGUAGE;
 import static dev.ikm.tinkar.terms.TinkarTerm.IDENTIFIER_PATTERN;
 import static dev.ikm.tinkar.terms.TinkarTerm.DEVELOPMENT_PATH;
 import static dev.ikm.tinkar.terms.TinkarTerm.FULLY_QUALIFIED_NAME_DESCRIPTION_TYPE;
+import static dev.ikm.tinkar.terms.TinkarTerm.IDENTIFIER_PATTERN;
 import static dev.ikm.tinkar.terms.TinkarTerm.PREFERRED;
 import static dev.ikm.tinkar.terms.TinkarTerm.REGULAR_NAME_DESCRIPTION_TYPE;
 
@@ -109,18 +112,21 @@ public class RxnormTransformationMojo extends AbstractMojo {
     }
 
 
+    /**
+     * Process OWL file and Creates Concepts for each Class
+     */
     private void createConcepts(Composer composer){
         LOG.info("Starting to create concepts from RxNorm OWL file...");
 
         // Parse the date from the filename
         String fileName = rxnormOwl.getName();
-        long timeForStamp = parseTimeFromFileName(fileName);
+        long timeForStamp = RxnormUtility.parseTimeFromFileName(fileName);
 
         try {
-            String owlContent = readFile(rxnormOwl);
+            String owlContent = RxnormUtility.readFile(rxnormOwl);
 
             // Process the OWL content to extract class declarations and annotations
-            List<RxnormData> rxnormConcepts = extractRxnormData(owlContent);
+            List<RxnormData> rxnormConcepts = RxnormUtility.extractRxnormData(owlContent);
 
             LOG.info("Found " + rxnormConcepts.size() + " class declarations in the OWL file");
 
@@ -166,7 +172,6 @@ public class RxnormTransformationMojo extends AbstractMojo {
                 createStatedDefinitionSemantics(session, concept, rxnormData);
             }
             createPatternSemantics(session, concept, rxnormData);
-
         } catch (Exception e) {
             LOG.error("Error creating concept for RxNorm ID: " + rxnormId, e);
         }

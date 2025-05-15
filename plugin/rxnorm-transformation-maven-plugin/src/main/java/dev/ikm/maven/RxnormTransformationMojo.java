@@ -377,25 +377,27 @@ public class RxnormTransformationMojo extends AbstractMojo {
 
             if(!rxnormData.getHumanDrug().isEmpty()) {
                 EntityProxy.Pattern humanDrugPattern = RxnormUtility.getHumanDrugPattern();
+                EntityProxy.Concept humanDrugConcept = RxnormUtility.makeConceptProxy(namespace, rxnormData.getHumanDrug());
                 EntityProxy.Semantic semantic = EntityProxy.Semantic.make(
                         PublicIds.of(UuidT5Generator.get(namespace, concept.publicId().asUuidArray()[0] + rxnormData.getQualitativeDistinction() + "HD")));
                 session.compose((SemanticAssembler semanticAssembler) -> semanticAssembler
                         .semantic(semantic)
                         .reference(concept)
                         .pattern(humanDrugPattern)
-                        .fieldValues(fv -> fv.with(rxnormData.getHumanDrug())
+                        .fieldValues(fv -> fv.with(humanDrugConcept)
                         ));
             }
 
             if(!rxnormData.getVetDrug().isEmpty()) {
                 EntityProxy.Pattern vetDrugPattern = RxnormUtility.getVetDrugPattern();
+                EntityProxy.Concept vetDrugConcept = RxnormUtility.makeConceptProxy(namespace, rxnormData.getVetDrug());
                 EntityProxy.Semantic semantic = EntityProxy.Semantic.make(
                         PublicIds.of(UuidT5Generator.get(namespace, concept.publicId().asUuidArray()[0] + rxnormData.getQualitativeDistinction() + "VD")));
                 session.compose((SemanticAssembler semanticAssembler) -> semanticAssembler
                         .semantic(semantic)
                         .reference(concept)
                         .pattern(vetDrugPattern)
-                        .fieldValues(fv -> fv.with(rxnormData.getVetDrug())
+                        .fieldValues(fv -> fv.with(vetDrugConcept)
                         ));
             }
              createTallmanSynonymPattern(session, concept, rxnormData);
@@ -406,7 +408,6 @@ public class RxnormTransformationMojo extends AbstractMojo {
 
     private void createTallmanSynonymPattern(Session session, EntityProxy.Concept concept, RxnormData rxnormData){
         if(!rxnormData.getTallmanSynonyms().isEmpty()) {
-            EntityProxy.Concept tallmanSynonymDescriptionConcept = RxnormUtility.getTallmanSynonymDescriptionConcept();
             rxnormData.getTallmanSynonyms().forEach(synonym -> {
                 EntityProxy.Semantic descSemantic = EntityProxy.Semantic.make(
                         PublicIds.of(UuidT5Generator.get(namespace, concept.publicId().asUuidArray()[0] + synonym + "TSDESC")));

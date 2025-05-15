@@ -110,7 +110,6 @@ public class RxnormTransformationMojo extends AbstractMojo {
         }
     }
 
-
     /**
      * Process OWL file and Creates Concepts for each Class
      */

@@ -16,6 +16,7 @@
         <module>rxnorm-starterdata</module>
         <module>rxnorm-pipeline</module>
         <module>rxnorm-integration</module>
+        <module>rxnorm-export</module>
     </modules>
 
     <properties>
@@ -32,11 +33,18 @@
         <maven-plugin-annotations.version>3.13.0</maven-plugin-annotations.version>
         <eclipse-collections-api.version>11.1.0-r11</eclipse-collections-api.version>
         <maven-plugin-plugin.version>3.13.0</maven-plugin-plugin.version>
+        <maven-clean-plugin.version>3.3.1</maven-clean-plugin.version>
+        <maven-antrun-plugin.version>3.1.0</maven-antrun-plugin.version>
         <jupiter.version>5.12.0</jupiter.version>
         <!-- origin -->
         <origin.working.directory>${project.build.directory}/origin-sources</origin.working.directory>
-        <source.zip>Pilot-Defined-RxNorm-with-SNCT-classes-2024-04-10-with-custom-annotations</source.zip>
+        <source.version>2024-04-10</source.version>
+        <source.zip>${user.home}/Downloads/Pilot-Defined-RxNorm-with-SNCT-classes-${source.version}-with-custom-annotations.owl</source.zip>
         <origin.namespace>3094dbd1-60cf-44a6-92e3-0bb32ca4d3de</origin.namespace>
+        <starterSetLocation>${user.home}/Downloads</starterSetLocation>
+        <starterSet>RxNormStarterSet3 1.zip</starterSet>
+        <dataStoreLocation>${project.basedir}/../target</dataStoreLocation>
+        <dataStore>rxnorm</dataStore>
     </properties>
     <dependencyManagement>
         <dependencies>
@@ -169,6 +177,12 @@
                     <groupId>org.apache.maven.plugins</groupId>
                     <artifactId>maven-dependency-plugin</artifactId>
                     <version>${maven-dependency-plugin.version}</version>
+                </plugin>
+                <!-- Skip Staging Plugin -->
+                <plugin>
+                    <groupId>org.sonatype.plugins</groupId>
+                    <artifactId>nexus-staging-maven-plugin</artifactId>
+                    <inherited>false</inherited>
                 </plugin>
             </plugins>
         </pluginManagement>

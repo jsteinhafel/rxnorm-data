@@ -27,8 +27,8 @@
                             <goal>generate-data</goal>
                         </goals>
                         <configuration>
-                            <dataStore>${user.home}/Solor/generated-data</dataStore>
-                            <exportFile>${user.home}/Solor/tinkar-export-starter-data-pb.zip</exportFile>
+                            <dataStore>${dataStoreLocation}/${dataStore}</dataStore>
+                            <exportFile>${dataStoreLocation}/tinkar-export-starter-data-pb.zip</exportFile>
                         </configuration>
                     </execution>
                 </executions>
@@ -38,12 +38,12 @@
                 <artifactId>tinkar-maven-plugin</artifactId>
                 <version>${maven-artifacts.version}</version>
                 <configuration>
-                    <dataStore>${user.home}/Solor/generated-data</dataStore>
+                    <dataStore>${dataStoreLocation}/${dataStore}</dataStore>
                     <fileset>
-                        <directory>${project.basedir}</directory>
-        			    <includes>
- 		            		<include>**/*.zip</include>
-			            </includes>
+                        <directory>${starterSetLocation}</directory>
+                        <includes>
+                            <include>**/${starterSet}</include>
+                        </includes>
                     </fileset>
                 </configuration>
                 <executions>

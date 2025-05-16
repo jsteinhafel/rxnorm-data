@@ -64,12 +64,6 @@
             <version>1.0.0-SNAPSHOT</version>
             <scope>test</scope>
         </dependency>
-        <dependency>
-            <groupId>dev.ikm.rxnorm</groupId>
-            <artifactId>rxnorm-transformation-maven-plugin</artifactId>
-            <version>1.0.0-SNAPSHOT</version>
-            <scope>test</scope>
-        </dependency>
     </dependencies>
 
     <build>
@@ -81,8 +75,8 @@
                 <configuration>
                     <reuseForks>false</reuseForks>
                     <systemPropertyVariables>
-                        <datastorePath>${user.home}/Solor/generated-data</datastorePath>
-                        <source.zip>Pilot-Defined-RxNorm-with-SNCT-classes-2024-04-10-with-custom-annotations</source.zip>
+                        <datastorePath>${dataStoreLocation}/${dataStore}</datastorePath>
+                        <source.zip>${source.zip}</source.zip>
                         <origin.namespace>${origin.namespace}</origin.namespace>
                     </systemPropertyVariables>
                     <argLine>-Xmx8g</argLine>

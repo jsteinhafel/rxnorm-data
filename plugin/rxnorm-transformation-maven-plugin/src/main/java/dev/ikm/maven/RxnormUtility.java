@@ -20,17 +20,17 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 public class RxnormUtility {
-    public static final String SNOMED_IDENTIFIER_PUBLIC_ID = "ed73f32d-c068-43f8-9767-ace6dfee44db";
-    public static final String RXCUID_IDENTIFIER_PUBLIC_ID = "e409e4ce-4527-49a0-bdc6-f4fe79c21088";
-    public static final String NDC_IDENTIFIER_PUBLIC_ID = "88f22a11-3715-4d58-8cb4-aa14d49a6b35";
-    public static final String VU_IDENTIFIER_PUBLIC_ID = "5d06759b-56f7-4c24-be70-5cea09e0e130";
-    public static final String TALLMAN_DESCRIPTION = "64943aee-fbad-485f-921d-ca03501faf26";
-    public static final String QUALITATIVE_DISTINCTION_PATTERN = "e409e4ce-4527-49a0-bdc6-f4fe79c21088";
-    public static final String QUANTITY_PATTERN = "bd1fdc59-962c-44e1-8a77-8c91a4faac7e";
-    public static final String SCHEDULE_PATTERN = "95b64af6-cf7c-4a92-aacd-c7e9fa968aa4";
-    public static final String HUMAN_DRUG_PATTERN = "d5fd4cff-b3fa-490d-aed8-85459c1edfe1";
-    public static final String VET_DRUG_PATTERN = "8140c0a7-76b5-4fe7-a6e0-c27246e26a1d";
-    public static final String TALLMAN_SYNONYM_PATTERN = "6b46672e-6a1d-4f6d-b4d8-9ca047f916cc";
+    public static final String SNOMED_IDENTIFIER_PUBLIC_ID = "35d6b6cb-b927-4e92-a47b-542f972cd692";
+    public static final String RXCUID_IDENTIFIER_PUBLIC_ID = "6b3930f9-26e2-48da-97ac-b26a567b570b";
+    public static final String NDC_IDENTIFIER_PUBLIC_ID = "d8ab8e6b-5b77-49f9-8db0-1e7343267740";
+    public static final String VU_IDENTIFIER_PUBLIC_ID = "84785d67-6cca-4caf-bbd0-113c217bb338";
+    public static final String TALLMAN_DESCRIPTION = "84785d67-6cca-4caf-bbd0-113c217bb338";
+    public static final String QUALITATIVE_DISTINCTION_PATTERN = "df1c8881-19e7-4159-86a0-91dff62a3d46";
+    public static final String QUANTITY_PATTERN = "1be49e47-30a0-417c-a254-2a15c7118aea";
+    public static final String SCHEDULE_PATTERN = "8a2e0eb3-80bd-4b61-a628-013a0c920f3d";
+    public static final String HUMAN_DRUG_PATTERN = "4f875c6a-b679-470d-ab72-9aa640ea9f87";
+    public static final String VET_DRUG_PATTERN = "4cbcd401-2edf-4859-8473-ff075b8178d1";
+    public static final String TALLMAN_SYNONYM_PATTERN = "2f75c349-ee27-4113-9c58-1b37c76abf62";
     private static final Logger LOG = LoggerFactory.getLogger(RxnormUtility.class.getSimpleName());
 
     /**

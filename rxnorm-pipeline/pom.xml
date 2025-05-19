@@ -24,6 +24,26 @@
     <build>
         <plugins>
             <plugin>
+                <groupId>dev.ikm.maven</groupId>
+                <artifactId>snomed-ct-transformation-maven-plugin</artifactId>
+                <version>1.0.0-SNAPSHOT</version>
+                <configuration>
+                    <namespaceString>${origin.namespace}</namespaceString>
+                    <datastorePath>${dataStoreLocation}/${dataStore}</datastorePath>
+                    <inputDirectoryPath>${user.home}/.m2/repository/dev/ikm/snomedct/snomed-ct-origin/${project.version}/snomed-ct-origin-${project.version}-data.zip</inputDirectoryPath>
+                    <dataOutputPath>${project.build.directory}</dataOutputPath>
+                </configuration>
+                <executions>
+                    <execution>
+                        <id>run-snomed-transformation</id>
+                        <phase>install</phase>
+                        <goals>
+                            <goal>run-snomed-transformation</goal>
+                        </goals>
+                    </execution>
+                </executions>
+            </plugin>
+            <plugin>
                 <groupId>dev.ikm.rxnorm</groupId>
                 <artifactId>rxnorm-transformation-maven-plugin</artifactId>
                 <version>1.0.0-SNAPSHOT</version>

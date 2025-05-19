@@ -152,7 +152,7 @@ public class RxnormTransformationMojo extends AbstractMojo {
         }
 
         // Generate UUID based on RxNorm ID
-        UUID conceptUuid = UuidT5Generator.get(namespace, rxnormId);
+        UUID conceptUuid = UuidT5Generator.get(namespace, rxnormId + "rxnorm");
 
         // Create session with Active state, RxNorm Author, RxNorm Module, and MasterPath
         Session session = composer.open(State.ACTIVE, time, rxnormAuthor, rxnormModule, DEVELOPMENT_PATH);

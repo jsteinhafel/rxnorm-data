@@ -147,7 +147,7 @@ public class RxnormTransformationMojo extends AbstractMojo {
         String rxnormId = rxnormData.getId();
 
         if (rxnormId == null || rxnormId.isEmpty()) {
-            LOG.warn("Could not extract RxNorm ID" + rxnormId);
+            LOG.warn("Could not extract RxNorm ID [{}]", rxnormData);
             return;
         }
 

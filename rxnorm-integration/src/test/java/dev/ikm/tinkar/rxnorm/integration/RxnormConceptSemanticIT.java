@@ -23,14 +23,13 @@ public class RxnormConceptSemanticIT extends AbstractIntegrationTest {
     /**
      * Test RxnormConcepts Semantics.
      *
-     * @result Reads content from file and validates Concept of Semantics by calling private method assertConcept().
+     * @result Reads content from file and validates Concept of Semantics by calling private method assertOwlElement().
      */
     @Test
     @Disabled // TODO
     public void testRxnormConceptSemantics() throws IOException {
-        String sourceFilePath = "../rxnorm-origin/";
         String errorFile = "target/failsafe-reports/Rxnorm_Concepts_not_found.txt";
-        String absolutePath = findFilePath(sourceFilePath, rxnormOwlFileName);
+        String absolutePath = rxnormOwlFileName;
         int notFound = processOwlFile(absolutePath, errorFile);
 
         assertEquals(0, notFound, "Unable to find " + notFound + " Rxnorm Concept semantics. Details written to " + errorFile);

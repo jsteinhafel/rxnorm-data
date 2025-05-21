@@ -30,7 +30,8 @@
                 <configuration>
                     <namespaceString>${origin.namespace}</namespaceString>
                     <datastorePath>${dataStoreLocation}/${dataStore}</datastorePath>
-                    <inputDirectoryPath>${user.home}/.m2/repository/dev/ikm/snomedct/snomed-ct-origin/${project.version}/snomed-ct-origin-${project.version}-data.zip</inputDirectoryPath>
+                    <!-- SNOMED is packaged in rxnorm-origin -->
+                    <inputDirectoryPath>${user.home}/.m2/repository/dev/ikm/rxnorm/rxnorm-origin/${project.version}/rxnorm-origin-${project.version}-data.zip</inputDirectoryPath>
                     <dataOutputPath>${project.build.directory}</dataOutputPath>
                 </configuration>
                 <executions>

@@ -13,10 +13,12 @@
 
     <modules>
         <module>plugin</module>
+        <module>rxnorm-origin</module>
         <module>rxnorm-starterdata</module>
         <module>rxnorm-pipeline</module>
+        <module>rxnorm-owl-transform</module>
         <module>rxnorm-integration</module>
-        <!--module>rxnorm-export</module-->
+        <module>rxnorm-export</module>
     </modules>
 
     <properties>
@@ -34,6 +36,7 @@
         <maven-plugin-plugin.version>3.13.0</maven-plugin-plugin.version>
         <maven-clean-plugin.version>3.3.1</maven-clean-plugin.version>
         <maven-antrun-plugin.version>3.1.0</maven-antrun-plugin.version>
+        <build-helper-maven-plugin.version>3.6.0</build-helper-maven-plugin.version>
         <jupiter.version>5.12.0</jupiter.version>
         <!-- starter data -->
         <tinkar-starter-data.groupId>dev.ikm.data.tinkar</tinkar-starter-data.groupId>
@@ -44,13 +47,19 @@
         <origin.working.directory>${project.build.directory}/origin-sources</origin.working.directory>
         <source.version>2024-04-10</source.version>
         <source.zip>${user.home}/Downloads/Pilot-Defined-RxNorm-with-SNCT-classes-${source.version}-with-custom-annotations.owl</source.zip>
-        <origin.namespace>3094dbd1-60cf-44a6-92e3-0bb32ca4d3de</origin.namespace>
+        <snomed.source.zip>${user.home}/Downloads/SnomedCT_InternationalRF2_PRODUCTION_20250301T120000Z.zip</snomed.source.zip>
         <starterSetLocation>${user.home}/Downloads</starterSetLocation>
         <starterSet>5-1RxNormStarterSet.zip</starterSet>
         <fieldCategoriesStarterSetLocation>${user.home}/Downloads</fieldCategoriesStarterSetLocation>
         <fieldCategoriesStarterSet>FieldCategories-nonprimordial-unreasoned-pb.zip</fieldCategoriesStarterSet>
         <dataStoreLocation>${project.basedir}/../target</dataStoreLocation>
         <dataStore>rxnorm</dataStore>
+
+        <!-- origin -->
+        <packager.name>IKM Dev</packager.name>
+        <origin.url>https://www.nlm.nih.gov/research/umls/rxnorm/docs/rxnormfiles.html</origin.url>
+        <origin.namespace>3094dbd1-60cf-44a6-92e3-0bb32ca4d3de</origin.namespace>
+
     </properties>
     <dependencyManagement>
         <dependencies>

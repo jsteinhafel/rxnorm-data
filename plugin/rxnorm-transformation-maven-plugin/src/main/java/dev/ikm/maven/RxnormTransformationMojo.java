@@ -79,8 +79,8 @@ public class RxnormTransformationMojo extends AbstractMojo {
 
         this.namespace = UUID.fromString(namespaceString);
         File datastore = new File(datastorePath);
-        this.rxnormModule = EntityProxy.Concept.make(PublicIds.of(UUID.fromString("ae4818f8-d523-48e8-abf9-099237ae01ab")));
-        this.rxnormAuthor = EntityProxy.Concept.make(PublicIds.of(UUID.fromString("65f596bd-3cf8-4818-84ea-740500267818")));
+        this.rxnormModule = EntityProxy.Concept.make(PublicIds.of(UUID.fromString(RxnormUtility.RXNORM_MODULE)));
+        this.rxnormAuthor = EntityProxy.Concept.make(PublicIds.of(UUID.fromString(RxnormUtility.RXNORM_AUTHOR)));
 
 //        try {
 //            unzipRawData(inputDirectoryPath);
@@ -147,7 +147,7 @@ public class RxnormTransformationMojo extends AbstractMojo {
         String rxnormId = rxnormData.getId();
 
         if (rxnormId == null || rxnormId.isEmpty()) {
-            LOG.warn("Could not extract RxNorm ID" + rxnormId);
+            LOG.warn("Could not extract RxNorm ID [{}]", rxnormData);
             return;
         }
 

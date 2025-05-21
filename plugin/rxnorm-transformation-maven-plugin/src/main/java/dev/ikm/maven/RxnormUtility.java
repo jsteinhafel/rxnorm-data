@@ -20,10 +20,12 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 public class RxnormUtility {
+    public static final String RXNORM_MODULE = "e7ead9cc-3711-4353-92b6-8e5d4f4ec723";
+    public static final String RXNORM_AUTHOR = "0d6d7eb2-3d2d-4ea9-bd54-7f33e74ff815";
     public static final String SNOMED_IDENTIFIER_PUBLIC_ID = "35d6b6cb-b927-4e92-a47b-542f972cd692";
     public static final String RXCUID_IDENTIFIER_PUBLIC_ID = "6b3930f9-26e2-48da-97ac-b26a567b570b";
     public static final String NDC_IDENTIFIER_PUBLIC_ID = "d8ab8e6b-5b77-49f9-8db0-1e7343267740";
-    public static final String VU_IDENTIFIER_PUBLIC_ID = "84785d67-6cca-4caf-bbd0-113c217bb338";
+    public static final String VU_IDENTIFIER_PUBLIC_ID = "e6d07757-5461-4687-a4ad-0a40ce4cc539";
     public static final String TALLMAN_DESCRIPTION = "84785d67-6cca-4caf-bbd0-113c217bb338";
     public static final String QUALITATIVE_DISTINCTION_PATTERN = "df1c8881-19e7-4159-86a0-91dff62a3d46";
     public static final String QUANTITY_PATTERN = "1be49e47-30a0-417c-a254-2a15c7118aea";

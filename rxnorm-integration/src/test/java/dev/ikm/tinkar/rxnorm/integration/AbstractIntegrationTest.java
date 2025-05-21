@@ -126,7 +126,7 @@ public abstract class AbstractIntegrationTest {
     }
 
     protected UUID uuid(String id) {
-        return RxnormUtility.generateUUID(UUID.fromString(namespaceString), id);
+        return RxnormUtility.generateUUID(UUID.fromString(namespaceString), id + "rxnorm");
     }
 
     protected abstract boolean assertOwlElement(RxnormData rxnormData);

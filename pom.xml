@@ -16,6 +16,7 @@
         <module>rxnorm-origin</module>
         <module>rxnorm-starterdata</module>
         <module>rxnorm-pipeline</module>
+        <module>rxnorm-owl-transform</module>
         <module>rxnorm-integration</module>
         <module>rxnorm-export</module>
     </modules>

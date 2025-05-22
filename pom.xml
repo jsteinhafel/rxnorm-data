@@ -17,6 +17,7 @@
         <module>rxnorm-starterdata</module>
         <module>rxnorm-pipeline</module>
         <module>rxnorm-owl-transform</module>
+        <module>rxnorm-reasoner</module>
         <module>rxnorm-integration</module>
         <module>rxnorm-export</module>
     </modules>
@@ -54,6 +55,7 @@
         <fieldCategoriesStarterSet>FieldCategories-nonprimordial-unreasoned-pb.zip</fieldCategoriesStarterSet>
         <dataStoreLocation>${project.basedir}/../target</dataStoreLocation>
         <dataStore>rxnorm</dataStore>
+        <reasoner-type>ElkSnomedReasoner</reasoner-type>
 
         <!-- origin -->
         <packager.name>IKM Dev</packager.name>

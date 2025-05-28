@@ -48,7 +48,7 @@
         <origin.working.directory>${project.build.directory}/origin-sources</origin.working.directory>
         <source.version>2024-04-10</source.version>
         <source.zip>${user.home}/Downloads/Pilot-Defined-RxNorm-with-SNCT-classes-${source.version}-with-custom-annotations.owl</source.zip>
-        <snomed.source.zip>${user.home}/Downloads/SnomedCT_InternationalRF2_PRODUCTION_20250301T120000Z.zip</snomed.source.zip>
+        <snomed.source.zip>${user.home}/Downloads/SnomedCT_InternationalRF2_PRODUCTION_20250501T120000Z.zip</snomed.source.zip>
         <starterSetLocation>${user.home}/Downloads</starterSetLocation>
         <starterSet>5-1RxNormStarterSet.zip</starterSet>
         <fieldCategoriesStarterSetLocation>${user.home}/Downloads</fieldCategoriesStarterSetLocation>

@@ -3,8 +3,6 @@ package dev.ikm.tinkar.rxnorm.integration;
 import dev.ikm.maven.RxnormData;
 import dev.ikm.maven.RxnormUtility;
 import dev.ikm.tinkar.common.id.PublicIds;
-import dev.ikm.tinkar.common.util.uuid.UuidT5Generator;
-import dev.ikm.tinkar.common.util.uuid.UuidUtil;
 import dev.ikm.tinkar.component.Component;
 import dev.ikm.tinkar.coordinate.Calculators;
 import dev.ikm.tinkar.coordinate.Coordinates;
@@ -18,11 +16,11 @@ import dev.ikm.tinkar.entity.PatternEntityVersion;
 import dev.ikm.tinkar.entity.SemanticEntityVersion;
 import dev.ikm.tinkar.terms.EntityProxy;
 import dev.ikm.tinkar.terms.TinkarTerm;
+import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 
 import java.io.IOException;
 import java.util.Map;
-import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicInteger;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
@@ -30,13 +28,13 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 public class RxnormIdentifierSemanticIT extends AbstractIntegrationTest {
 
     /**
-     * Test RxnormIdentifer Semantics.
+     * Test RxnormIdentifier Semantics.
      *
-     * @result Reads content from file and validates Identifier Semantics by calling private method assertConcept().
+     * @result Reads content from file and validates Identifier Semantics by calling private method assertOwlElement().
      */
     @Test
+//    @Disabled // TODO
     public void testRxnormIdentifierSemantics() throws IOException {
-        String sourceFilePath = "../rxnorm-origin/";
         String errorFile = "target/failsafe-reports/Rxnorm_Identifier_not_found.txt";
         String absolutePath = rxnormOwlFileName; 
         int notFound = processOwlFile(absolutePath, errorFile);
@@ -86,9 +84,9 @@ public class RxnormIdentifierSemanticIT extends AbstractIntegrationTest {
 	               .getCalculator(StampCoordinateRecord.make(stateActive, Coordinates.Position.LatestOnDevelopment()));
 
 	        StampCalculator stampCalcInActive = StampCalculatorWithCache
-		               .getCalculator(StampCoordinateRecord.make(stateInActive, Coordinates.Position.LatestOnDevelopment()));
+                   .getCalculator(StampCoordinateRecord.make(stateInActive, Coordinates.Position.LatestOnDevelopment()));
 	        
-			concept = EntityProxy.Concept.make(PublicIds.of(uuid(rxnormId)));
+			concept = EntityProxy.Concept.make(PublicIds.of(conceptUuid(rxnormId)));
 			
 	        EntityService.get().forEachSemanticForComponentOfPattern(concept.nid(), TinkarTerm.IDENTIFIER_PATTERN.nid(), semanticEntity -> {
 	        	Latest<SemanticEntityVersion> latestActive = stampCalcActive.latest(semanticEntity);

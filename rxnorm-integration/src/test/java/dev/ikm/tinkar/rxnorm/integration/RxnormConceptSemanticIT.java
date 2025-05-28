@@ -39,7 +39,7 @@ public class RxnormConceptSemanticIT extends AbstractIntegrationTest {
     protected boolean assertOwlElement(RxnormData rxnormData) {
         if (rxnormData.getId() != null) {
             // Generate UUID based on RxNorm ID
-            UUID conceptUuid = uuid(rxnormData.getId());
+            UUID conceptUuid = conceptUuid(rxnormData.getId());
             StateSet state = StateSet.ACTIVE;
             StampPositionRecord stampPosition = StampPositionRecord.make(timeForStamp, TinkarTerm.DEVELOPMENT_PATH.nid());
             StampCalculator stampCalc = StampCoordinateRecord.make(state, stampPosition).stampCalculator();

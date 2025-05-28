@@ -17,12 +17,8 @@ import java.io.File;
 import java.io.FileReader;
 import java.io.FileWriter;
 import java.io.IOException;
-import java.nio.file.Files;
-import java.nio.file.Path;
-import java.nio.file.Paths;
 import java.util.List;
 import java.util.UUID;
-import java.util.stream.Stream;
 
 public abstract class AbstractIntegrationTest {
     Logger LOG = LoggerFactory.getLogger(AbstractIntegrationTest.class);
@@ -46,34 +42,6 @@ public abstract class AbstractIntegrationTest {
         PrimitiveData.start();
         rxnormOwlFileName = System.getProperty("source.zip"); // property set in pom.xml
         timeForStamp = RxnormUtility.parseTimeFromFileName(rxnormOwlFileName);
-    }
-
-    /**
-     * Find FilePath
-     *
-     * @param baseDir
-     * @param fileKeyword
-     * @return absolutePath
-     * @throws IOException
-     */
-    protected static String findFilePath(String baseDir, String fileKeyword) throws IOException {
-
-        try (Stream<Path> dirStream = Files.walk(Paths.get(baseDir))) {
-            Path targetDir = dirStream.filter(Files::isDirectory)
-//                    .filter(path -> path.toFile().getAbsoluteFile().toString().toLowerCase().contains(dirKeyword.toLowerCase()))
-                    .findFirst()
-                    .orElseThrow(() -> new RuntimeException("Target DIRECTORY not found"));
-
-            try (Stream<Path> fileStream = Files.walk(targetDir)) {
-                Path targetFile = fileStream.filter(Files::isRegularFile)
-                        .filter(path -> path.toFile().getAbsoluteFile().toString().toLowerCase().contains(fileKeyword.toLowerCase()))
-                        .findFirst()
-                        .orElseThrow(() -> new RuntimeException("Target FILE not found for: " + fileKeyword));
-
-                return targetFile.toAbsolutePath().toString();
-            }
-        }
-
     }
 
     /**
@@ -125,7 +93,7 @@ public abstract class AbstractIntegrationTest {
         return content.toString();
     }
 
-    protected UUID uuid(String id) {
+    protected UUID conceptUuid(String id) {
         return RxnormUtility.generateUUID(UUID.fromString(namespaceString), id + "rxnorm");
     }
 

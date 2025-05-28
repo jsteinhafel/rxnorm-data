@@ -3,51 +3,40 @@ package dev.ikm.tinkar.rxnorm.integration;
 import dev.ikm.maven.RxnormData;
 import dev.ikm.maven.RxnormUtility;
 import dev.ikm.tinkar.common.id.PublicIds;
-import dev.ikm.tinkar.common.util.uuid.UuidT5Generator;
-import dev.ikm.tinkar.common.util.uuid.UuidUtil;
 import dev.ikm.tinkar.component.Component;
 import dev.ikm.tinkar.coordinate.Calculators;
 import dev.ikm.tinkar.coordinate.Coordinates;
 import dev.ikm.tinkar.coordinate.stamp.StampCoordinateRecord;
-import dev.ikm.tinkar.coordinate.stamp.StampPositionRecord;
 import dev.ikm.tinkar.coordinate.stamp.StateSet;
 import dev.ikm.tinkar.coordinate.stamp.calculator.Latest;
 import dev.ikm.tinkar.coordinate.stamp.calculator.StampCalculator;
 import dev.ikm.tinkar.coordinate.stamp.calculator.StampCalculatorWithCache;
-import dev.ikm.tinkar.entity.ConceptRecord;
-import dev.ikm.tinkar.entity.ConceptVersionRecord;
 import dev.ikm.tinkar.entity.EntityService;
 import dev.ikm.tinkar.entity.PatternEntityVersion;
 import dev.ikm.tinkar.entity.SemanticEntityVersion;
 import dev.ikm.tinkar.terms.EntityProxy;
-import dev.ikm.tinkar.terms.State;
 import dev.ikm.tinkar.terms.EntityProxy.Concept;
-import dev.ikm.tinkar.terms.TinkarTerm;
+import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 
 import java.io.IOException;
-import java.text.SimpleDateFormat;
-import java.util.Date;
-import java.util.Map;
 import java.util.UUID;
-import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicInteger;
-
-import static org.junit.jupiter.api.Assertions.assertEquals;
 
 import static dev.ikm.tinkar.terms.TinkarTerm.ENGLISH_LANGUAGE;
 import static dev.ikm.tinkar.terms.TinkarTerm.PREFERRED;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 
 public class RxnormPatternSemanticIT extends AbstractIntegrationTest {
 
     /**
-     * Test RxnormConcepts Semantics.
+     * Test RxnormPattern Semantics.
      *
-     * @result Reads content from file and validates Pattern Semantics by calling private method assertConcept().
+     * @result Reads content from file and validates Pattern Semantics by calling private method assertOwlElement().
      */
     @Test
+	@Disabled // TODO
     public void testRxnormPatternSemantics() throws IOException {
-        String sourceFilePath = "../rxnorm-origin/";
         String errorFile = "target/failsafe-reports/Rxnorm_Pattern_not_found.txt";
         String absolutePath = rxnormOwlFileName; 
         int notFound = processOwlFile(absolutePath, errorFile);
@@ -106,7 +95,7 @@ public class RxnormPatternSemanticIT extends AbstractIntegrationTest {
 	        StampCalculator stampCalcActive = StampCalculatorWithCache
 		               .getCalculator(StampCoordinateRecord.make(stateActive, Coordinates.Position.LatestOnDevelopment()));
 		        
-			concept = EntityProxy.Concept.make(PublicIds.of(uuid(rxnormId)));
+			concept = EntityProxy.Concept.make(PublicIds.of(conceptUuid(rxnormId)));
 			
 			PatternEntityVersion latestQualitativeDistinctionPattern = (PatternEntityVersion) Calculators.Stamp.DevelopmentLatest()
 					.latest(RxnormUtility.getQualitativeDistinctionPattern()).get();

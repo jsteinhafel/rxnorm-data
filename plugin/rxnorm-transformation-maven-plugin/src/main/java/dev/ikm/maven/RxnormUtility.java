@@ -33,7 +33,23 @@ public class RxnormUtility {
     public static final String HUMAN_DRUG_PATTERN = "4f875c6a-b679-470d-ab72-9aa640ea9f87";
     public static final String VET_DRUG_PATTERN = "4cbcd401-2edf-4859-8473-ff075b8178d1";
     public static final String TALLMAN_SYNONYM_PATTERN = "2f75c349-ee27-4113-9c58-1b37c76abf62";
+    
+    public static final String QUALITATIVE_PATTERN_DISTINCTION_MEANING = "f1ac8825-9e73-43c3-9a2d-a4c45acb623f";
+    public static final String QUALITATIVE_PATTERN_LANGUAGE_MEANING = "8255b976-1b0b-4fc9-9a46-76c4866b822f";
+    
+    public static final String QUANTITY_PATTERN_DRUG_MEANING = "70785113-4769-42d1-bf3b-2281318c8870";
+    
+    public static final String SCHEDULE_PATTERN_DRUG_MEANING = "a5f5e459-cd14-48fe-95e6-ab0dfff323a6";
+    public static final String SCHEDULE_PATTERN_LANGUAGE_MEANING = "6017102b-23f5-4d62-ac7c-5827858885b1";
+    
+    public static final String HUMAN_DRUG_PATTERN_LANGUAGE_MEANING = "e515d52f-831b-4010-8507-9541a14f7b11";
+    
+    public static final String VETERINARIAN_DRUG_PATTERN_LANGUAGE_MEANING = "84785d67-6cca-4caf-bbd0-113c217bb338";
+  
+    public static final String TALLMAN_SYNONYM_PATTERN_LANGUAGE_MEANING = "22f120a0-bbe7-4bd8-ac86-8c52a01d3ea6";
+    
     private static final Logger LOG = LoggerFactory.getLogger(RxnormUtility.class.getSimpleName());
+    
 
     /**
      *

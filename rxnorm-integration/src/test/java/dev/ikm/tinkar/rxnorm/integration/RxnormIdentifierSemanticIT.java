@@ -16,7 +16,6 @@ import dev.ikm.tinkar.entity.PatternEntityVersion;
 import dev.ikm.tinkar.entity.SemanticEntityVersion;
 import dev.ikm.tinkar.terms.EntityProxy;
 import dev.ikm.tinkar.terms.TinkarTerm;
-import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 
 import java.io.IOException;
@@ -33,7 +32,6 @@ public class RxnormIdentifierSemanticIT extends AbstractIntegrationTest {
      * @result Reads content from file and validates Identifier Semantics by calling private method assertOwlElement().
      */
     @Test
-//    @Disabled // TODO
     public void testRxnormIdentifierSemantics() throws IOException {
         String errorFile = "target/failsafe-reports/Rxnorm_Identifier_not_found.txt";
         String absolutePath = rxnormOwlFileName; 

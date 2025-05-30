@@ -86,6 +86,7 @@ public class RxnormUtility {
 
             if (uriMatcher.find()) {
                 String uri = uriMatcher.group(1);
+
                 RxnormData concept = new RxnormData(uri);
 
                 // Extract annotations
@@ -94,7 +95,12 @@ public class RxnormUtility {
                 // Extract EquivalentClasses
                 extractEquivalentClasses(block, concept);
 
-                attributes.add(concept);
+                if (uri.startsWith("http://mor.nlm.nih.gov/RXNORM/")) {
+                    attributes.add(concept);
+                } else {
+                    LOG.info("Skipping RxnormData object. Id is null. {}", concept);
+                }
+
             }
         }
 

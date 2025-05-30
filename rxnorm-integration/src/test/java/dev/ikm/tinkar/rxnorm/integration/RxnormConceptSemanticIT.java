@@ -10,7 +10,6 @@ import dev.ikm.tinkar.entity.ConceptRecord;
 import dev.ikm.tinkar.entity.ConceptVersionRecord;
 import dev.ikm.tinkar.entity.EntityService;
 import dev.ikm.tinkar.terms.TinkarTerm;
-import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 
 import java.io.IOException;
@@ -26,7 +25,6 @@ public class RxnormConceptSemanticIT extends AbstractIntegrationTest {
      * @result Reads content from file and validates Concept of Semantics by calling private method assertOwlElement().
      */
     @Test
-    @Disabled // TODO
     public void testRxnormConceptSemantics() throws IOException {
         String errorFile = "target/failsafe-reports/Rxnorm_Concepts_not_found.txt";
         String absolutePath = rxnormOwlFileName;

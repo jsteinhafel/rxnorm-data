@@ -16,27 +16,27 @@ import dev.ikm.tinkar.entity.PatternEntityVersion;
 import dev.ikm.tinkar.entity.SemanticEntityVersion;
 import dev.ikm.tinkar.terms.EntityProxy;
 import dev.ikm.tinkar.terms.EntityProxy.Concept;
-import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 
 import java.io.IOException;
 import java.util.UUID;
 import java.util.concurrent.atomic.AtomicInteger;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
+
 import static dev.ikm.tinkar.terms.TinkarTerm.ENGLISH_LANGUAGE;
 import static dev.ikm.tinkar.terms.TinkarTerm.PREFERRED;
-import static org.junit.jupiter.api.Assertions.assertEquals;
 
 public class RxnormPatternSemanticIT extends AbstractIntegrationTest {
 
     /**
-     * Test RxnormPattern Semantics.
+     * Test RxnormConcepts Semantics.
      *
-     * @result Reads content from file and validates Pattern Semantics by calling private method assertOwlElement().
+     * @result Reads content from file and validates Pattern Semantics by calling private method assertConcept().
      */
     @Test
-	@Disabled // TODO
     public void testRxnormPatternSemantics() throws IOException {
+        String sourceFilePath = "../rxnorm-origin/";
         String errorFile = "target/failsafe-reports/Rxnorm_Pattern_not_found.txt";
         String absolutePath = rxnormOwlFileName; 
         int notFound = processOwlFile(absolutePath, errorFile);
@@ -82,9 +82,7 @@ public class RxnormPatternSemanticIT extends AbstractIntegrationTest {
         	countVetDrug++;
         }
         
-        if(!rxnormData.getTallmanSynonyms().isEmpty()) {
-        	rxnormData.getTallmanSynonyms().size();
-        }
+        countTallmanSynonym = rxnormData.getTallmanSynonyms().size();
            
         StateSet stateActive = StateSet.ACTIVE;
        
@@ -200,13 +198,11 @@ public class RxnormPatternSemanticIT extends AbstractIntegrationTest {
 	        		        	
 	        	if (latestActive.isPresent()) {
 	        		if(!rxnormData.getTallmanSynonyms().isEmpty()) {
-	    	        	for(int i= 0; i < rxnormData.getTallmanSynonyms().size(); i++) {
-	    	        		Component source = latestTallmanSynonymPattern.getFieldWithMeaning(EntityProxy.Concept.make(PublicIds.of(UUID.fromString(RxnormUtility.TALLMAN_SYNONYM_PATTERN_LANGUAGE_MEANING))), latestActive.get());
+	    	        	Component source = latestTallmanSynonymPattern.getFieldWithMeaning(EntityProxy.Concept.make(PublicIds.of(UUID.fromString(RxnormUtility.TALLMAN_SYNONYM_PATTERN_LANGUAGE_MEANING))), latestActive.get());
 	                        
-	                        if (PREFERRED.equals(source)) {
-	                           innerTallmanSynonymCount.addAndGet(1);
-	                        }	    		        
-	    	        	}						
+	                    if (PREFERRED.equals(source)) {
+	                        innerTallmanSynonymCount.addAndGet(1);
+	                    }	    		        				
                     }
 	        	} 
 	        }); 	       
@@ -241,6 +237,6 @@ public class RxnormPatternSemanticIT extends AbstractIntegrationTest {
         		&& countQuantity == innerQuantityCount.get() 
         		&& countSchedule == innerScheduleCount.get()
         		&& countTallmanSynonym == innerTallmanSynonymCount.get() 
-        		&& countVetDrug == innerVetDrugCount.get();  
+        		&& countVetDrug == innerVetDrugCount.get();
     }  
 }

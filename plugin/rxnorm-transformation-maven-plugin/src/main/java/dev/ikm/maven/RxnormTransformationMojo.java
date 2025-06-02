@@ -351,7 +351,7 @@ public class RxnormTransformationMojo extends AbstractMojo {
             if(!rxnormData.getQuantity().isEmpty()) {
                 EntityProxy.Pattern quantityPattern = RxnormUtility.getQuantityPattern();
                 EntityProxy.Semantic semantic = EntityProxy.Semantic.make(
-                        PublicIds.of(UuidT5Generator.get(namespace, concept.publicId().asUuidArray()[0] + rxnormData.getQualitativeDistinction() + "QUANTITY")));
+                        PublicIds.of(UuidT5Generator.get(namespace, concept.publicId().asUuidArray()[0] + rxnormData.getQuantity() + "QUANTITY")));
                 session.compose((SemanticAssembler semanticAssembler) -> semanticAssembler
                         .semantic(semantic)
                         .reference(concept)
@@ -363,7 +363,7 @@ public class RxnormTransformationMojo extends AbstractMojo {
             if(!rxnormData.getSchedule().isEmpty()) {
                 EntityProxy.Pattern schedulePattern = RxnormUtility.getSchedulePattern();
                 EntityProxy.Semantic semantic = EntityProxy.Semantic.make(
-                        PublicIds.of(UuidT5Generator.get(namespace, concept.publicId().asUuidArray()[0] + rxnormData.getQualitativeDistinction() + "SCHEDULE")));
+                        PublicIds.of(UuidT5Generator.get(namespace, concept.publicId().asUuidArray()[0] + rxnormData.getSchedule() + "SCHEDULE")));
                 session.compose((SemanticAssembler semanticAssembler) -> semanticAssembler
                         .semantic(semantic)
                         .reference(concept)
@@ -377,8 +377,9 @@ public class RxnormTransformationMojo extends AbstractMojo {
             if(!rxnormData.getHumanDrug().isEmpty()) {
                 EntityProxy.Pattern humanDrugPattern = RxnormUtility.getHumanDrugPattern();
                 EntityProxy.Concept humanDrugConcept = RxnormUtility.makeConceptProxy(namespace, rxnormData.getHumanDrug());
+                session.compose((ConceptAssembler conceptAssembler) -> conceptAssembler.concept(humanDrugConcept));
                 EntityProxy.Semantic semantic = EntityProxy.Semantic.make(
-                        PublicIds.of(UuidT5Generator.get(namespace, concept.publicId().asUuidArray()[0] + rxnormData.getQualitativeDistinction() + "HD")));
+                        PublicIds.of(UuidT5Generator.get(namespace, concept.publicId().asUuidArray()[0] + rxnormData.getHumanDrug() + "HD")));
                 session.compose((SemanticAssembler semanticAssembler) -> semanticAssembler
                         .semantic(semantic)
                         .reference(concept)
@@ -390,8 +391,9 @@ public class RxnormTransformationMojo extends AbstractMojo {
             if(!rxnormData.getVetDrug().isEmpty()) {
                 EntityProxy.Pattern vetDrugPattern = RxnormUtility.getVetDrugPattern();
                 EntityProxy.Concept vetDrugConcept = RxnormUtility.makeConceptProxy(namespace, rxnormData.getVetDrug());
+                session.compose((ConceptAssembler conceptAssembler) -> conceptAssembler.concept(vetDrugConcept));
                 EntityProxy.Semantic semantic = EntityProxy.Semantic.make(
-                        PublicIds.of(UuidT5Generator.get(namespace, concept.publicId().asUuidArray()[0] + rxnormData.getQualitativeDistinction() + "VD")));
+                        PublicIds.of(UuidT5Generator.get(namespace, concept.publicId().asUuidArray()[0] + rxnormData.getVetDrug() + "VD")));
                 session.compose((SemanticAssembler semanticAssembler) -> semanticAssembler
                         .semantic(semantic)
                         .reference(concept)
@@ -423,10 +425,10 @@ public class RxnormTransformationMojo extends AbstractMojo {
 
                 EntityProxy.Pattern tallmanSynonymPattern = RxnormUtility.getTallmanSynonymPattern();
                 EntityProxy.Semantic patternSemantic = EntityProxy.Semantic.make(
-                        PublicIds.of(UuidT5Generator.get(namespace, concept.publicId().asUuidArray()[0] + rxnormData.getQualitativeDistinction() + "VD")));
+                        PublicIds.of(UuidT5Generator.get(namespace, concept.publicId().asUuidArray()[0] + synonym + "Tallman")));
                 session.compose((SemanticAssembler semanticAssembler) -> semanticAssembler
                         .semantic(patternSemantic)
-                        .reference(descSemantic)
+                        .reference(concept)
                         .pattern(tallmanSynonymPattern)
                         .fieldValues(fv -> fv
                                 .with(PREFERRED)

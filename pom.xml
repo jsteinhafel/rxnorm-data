@@ -24,11 +24,11 @@
 
     <properties>
         <!-- maven plugins -->
-        <maven-artifacts.version>1.20.0</maven-artifacts.version>
+        <maven-artifacts.version>1.21.0</maven-artifacts.version>
         <maven-assembly-plugin.version>3.7.1</maven-assembly-plugin.version>
         <exec-maven-plugin.version>3.4.1</exec-maven-plugin.version>
         <maven-dependency-plugin.version>3.8.0</maven-dependency-plugin.version>
-        <tinkar-core.version>1.95.0</tinkar-core.version>
+        <tinkar-core.version>1.103.0</tinkar-core.version>
         <maven-plugin-api.version>3.9.7</maven-plugin-api.version>
         <slf4j.version>2.0.17</slf4j.version>
         <tinkar-composer.version>1.5.0</tinkar-composer.version>
@@ -48,7 +48,7 @@
         <origin.working.directory>${project.build.directory}/origin-sources</origin.working.directory>
         <source.version>2024-04-10</source.version>
         <source.zip>${user.home}/Downloads/Pilot-Defined-RxNorm-with-SNCT-classes-${source.version}-with-custom-annotations.owl</source.zip>
-        <snomed.source.zip>${user.home}/Downloads/SnomedCT_InternationalRF2_PRODUCTION_20250301T120000Z.zip</snomed.source.zip>
+        <snomed.source.zip>${user.home}/Downloads/SnomedCT_InternationalRF2_PRODUCTION_20250501T120000Z.zip</snomed.source.zip>
         <starterSetLocation>${user.home}/Downloads</starterSetLocation>
         <starterSet>5-1RxNormStarterSet.zip</starterSet>
         <fieldCategoriesStarterSetLocation>${user.home}/Downloads</fieldCategoriesStarterSetLocation>

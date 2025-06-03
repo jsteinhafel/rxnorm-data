@@ -33,7 +33,7 @@ public class RxnormIdentifierSemanticIT extends AbstractIntegrationTest {
      */
     @Test
     public void testRxnormIdentifierSemantics() throws IOException {
-        String errorFile = "target/failsafe-reports/Rxnorm_Identifier_not_found.txt";
+        String errorFile = "target/failsafe-reports/Rxnorm_Identifiers_not_found.txt";
         String absolutePath = rxnormOwlFileName; 
         int notFound = processOwlFile(absolutePath, errorFile);
 

@@ -42,7 +42,7 @@ public class RxnormStatedDefinitionSemanticIT extends AbstractIntegrationTest {
      */
     @Test
     public void testRxnormStatedDefinitionSemantics() throws IOException {
-        String errorFile = "target/failsafe-reports/Rxnorm_StatedDefinition_not_found.txt";
+        String errorFile = "target/failsafe-reports/Rxnorm_StatedDefinitions_not_found.txt";
         String absolutePath = rxnormOwlFileName;
         int notFound = processOwlFile(absolutePath, errorFile);
 

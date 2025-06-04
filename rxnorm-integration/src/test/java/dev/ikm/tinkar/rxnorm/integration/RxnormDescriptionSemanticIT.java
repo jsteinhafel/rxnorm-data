@@ -122,6 +122,6 @@ public class RxnormDescriptionSemanticIT extends AbstractIntegrationTest {
 
             return (matchedName.get() && matchedSynonym.get() && matchedPrescribableSynonym.get() && matchedTallmanSynonyms.get() == rxnormTallmanSynonym.get().size());
         }
-        return false; // TOTAL 28
+        return false;
     }
 }

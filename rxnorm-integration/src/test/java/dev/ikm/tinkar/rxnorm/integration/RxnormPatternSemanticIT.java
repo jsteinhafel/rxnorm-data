@@ -22,22 +22,20 @@ import java.io.IOException;
 import java.util.UUID;
 import java.util.concurrent.atomic.AtomicInteger;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
-
 import static dev.ikm.tinkar.terms.TinkarTerm.ENGLISH_LANGUAGE;
 import static dev.ikm.tinkar.terms.TinkarTerm.PREFERRED;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 
 public class RxnormPatternSemanticIT extends AbstractIntegrationTest {
 
     /**
-     * Test RxnormConcepts Semantics.
+     * Test RxnormPattern Semantics.
      *
-     * @result Reads content from file and validates Pattern Semantics by calling private method assertConcept().
+     * @result Reads content from file and validates Pattern Semantics by calling private method assertOwlElement().
      */
     @Test
     public void testRxnormPatternSemantics() throws IOException {
-        String sourceFilePath = "../rxnorm-origin/";
-        String errorFile = "target/failsafe-reports/Rxnorm_Pattern_not_found.txt";
+        String errorFile = "target/failsafe-reports/Rxnorm_Patterns_not_found.txt";
         String absolutePath = rxnormOwlFileName; 
         int notFound = processOwlFile(absolutePath, errorFile);
 

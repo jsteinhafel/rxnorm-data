@@ -133,6 +133,8 @@ public class RxnormTransformationMojo extends AbstractMojo {
                 createRxnormConcept(rxnormConcept, timeForStamp, composer);
             }
 
+            createLabelOnlyConcepts(rxnormConcepts, timeForStamp, composer);
+
             LOG.info("Completed creating RxNorm concepts");
 
         } catch (Exception e) {
@@ -437,6 +439,104 @@ public class RxnormTransformationMojo extends AbstractMojo {
         }
     }
 
+    /**
+     * Creates concepts that only have rdfs:label and SubClassOf/EquivalentClasses
+     */
+    private void createLabelOnlyConcepts(List<RxnormData> rxnormConcepts, long timeForStamp, Composer composer) {
+        LOG.info("Processing label-only concepts...");
+
+        for (RxnormData rxnormData : rxnormConcepts) {
+            // Check if this is a label-only concept (only has rdfs:label for annotations)
+            if (!rxnormData.getRdfsLabel().isEmpty() &&
+                    rxnormData.getRxnormName().isEmpty() &&
+                    rxnormData.getRxnormSynonym().isEmpty() &&
+                    rxnormData.getPrescribableSynonym().isEmpty() &&
+                    rxnormData.getSnomedCtId().isEmpty() &&
+                    rxnormData.getRxCuiId().isEmpty() &&
+                    rxnormData.getVuidId().isEmpty() &&
+                    rxnormData.getNdcCodes().isEmpty()) {
+
+                createLabelOnlyConcept(rxnormData, timeForStamp, composer);
+            }
+        }
+    }
+
+    /**
+     * Creates a concept with only rdfs:label and axiom semantic
+     */
+    private void createLabelOnlyConcept(RxnormData rxnormData, long time, Composer composer) {
+        String rxnormId = rxnormData.getId();
+
+        if (rxnormId == null || rxnormId.isEmpty()) {
+            LOG.warn("Could not extract RxNorm ID for label-only concept [{}]", rxnormData);
+            return;
+        }
+
+        // Generate UUID based on RxNorm ID
+        UUID conceptUuid = UuidT5Generator.get(namespace, rxnormId + "rxnorm");
+
+        // Create session with Active state, RxNorm Author, RxNorm Module, and MasterPath
+        Session session = composer.open(State.ACTIVE, time, rxnormAuthor, rxnormModule, DEVELOPMENT_PATH);
+
+        try {
+            EntityProxy.Concept concept = EntityProxy.Concept.make(PublicIds.of(conceptUuid));
+
+            session.compose((ConceptAssembler assembler) -> {
+                assembler.concept(concept);
+            });
+
+            // Create description using rdfs:label as FQN
+            createLabelDescription(session, concept, rxnormData);
+
+            // Create axiom semantic - prefer EquivalentClasses over SubClassOf
+            if (!rxnormData.getEquivalentClassesStr().isEmpty()) {
+                createStatedDefinitionSemantics(session, concept, rxnormData);
+            } else if (!rxnormData.getSubClassOfStr().isEmpty()) {
+                createSubClassOfDefinitionSemantic(session, concept, rxnormData);
+            }
+
+        } catch (Exception e) {
+            LOG.error("Error creating label-only concept for RxNorm ID: " + rxnormId, e);
+        }
+    }
+
+    /**
+     * Creates description semantic using rdfs:label
+     */
+    private void createLabelDescription(Session session, EntityProxy.Concept concept, RxnormData rxnormData) {
+        try {
+            EntityProxy.Semantic semantic = EntityProxy.Semantic.make(
+                    PublicIds.of(UuidT5Generator.get(namespace, concept.publicId().asUuidArray()[0] + rxnormData.getRdfsLabel() + "LDESC")));
+            session.compose((SemanticAssembler semanticAssembler) -> semanticAssembler
+                    .semantic(semantic)
+                    .pattern(DESCRIPTION_PATTERN)
+                    .reference(concept)
+                    .fieldValues(fieldValues -> fieldValues
+                            .with(ENGLISH_LANGUAGE)
+                            .with(rxnormData.getRdfsLabel())
+                            .with(DESCRIPTION_NOT_CASE_SENSITIVE)
+                            .with(FULLY_QUALIFIED_NAME_DESCRIPTION_TYPE)
+                    ));
+        } catch (Exception e) {
+            LOG.error("Error creating label description for concept: " + concept, e);
+        }
+    }
+
+    /**
+     * Creates a stated definition semantic for SubClassOf expressions
+     */
+    private void createSubClassOfDefinitionSemantic(Session session, EntityProxy.Concept concept, RxnormData rxnormData) {
+        String owlExpression = RxnormUtility.transformOwlStringSubClassesOf(namespace, rxnormData.getSubClassOfStr());
+        EntityProxy.Semantic axiomSemantic = EntityProxy.Semantic.make(PublicIds.of(UuidT5Generator.get(namespace, concept.publicId().asUuidArray()[0] + rxnormData.getSubClassOfStr() + "SUBAXIOM")));
+        try {
+            session.compose(new AxiomSyntax()
+                            .semantic(axiomSemantic)
+                            .text(owlExpression),
+                    concept);
+        } catch (Exception e) {
+            LOG.error("Error creating SubClassOf definition semantic for concept: " + concept, e);
+        }
+    }
 
     private void unzipRawData(String zipFilePath) throws IOException {
         File outputDirectory = new File(dataOutputPath);

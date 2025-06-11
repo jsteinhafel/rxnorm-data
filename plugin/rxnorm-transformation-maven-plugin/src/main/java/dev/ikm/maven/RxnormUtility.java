@@ -342,12 +342,17 @@ public class RxnormUtility {
             // Process the URI based on its format
             if (uri.startsWith("http://snomed.info/id/")) {
                 String id = uri.substring("http://snomed.info/id/".length());
-                EntityProxy.Concept concept = makeConceptProxy(namespace, id);
+                final EntityProxy.Concept concept;
+                if (id.endsWith("-FS")) {
+                    concept = makeConceptProxy(namespace, id + "rxnorm");
+                } else {
+                    concept = makeConceptProxy(namespace, id);
+                }
                 replacement = ":[" + concept.publicId().asUuidArray()[0] + "]";
             } else if (uri.startsWith("http://mor.nlm.nih.gov/RXNORM/")) {
                 // RxNorm ID
                 String id = uri.substring("http://mor.nlm.nih.gov/RXNORM/".length());
-                EntityProxy.Concept concept = makeConceptProxy(namespace, id);
+                EntityProxy.Concept concept = makeConceptProxy(namespace, id+"rxnorm");
                 replacement = ":[" + concept.publicId().asUuidArray()[0] + "]";
             } else {
                 // Unknown URI type, keep as is
@@ -379,7 +384,13 @@ public class RxnormUtility {
 
                 if (uri.startsWith("http://snomed.info/id/")) {
                     String id = uri.substring("http://snomed.info/id/".length());
-                    EntityProxy.Concept concept = makeConceptProxy(namespace, id);
+                    final EntityProxy.Concept concept;
+                    if (id.endsWith("-FS")) {
+                        concept = makeConceptProxy(namespace, id + "rxnorm");
+                    } else {
+                        concept = makeConceptProxy(namespace, id);
+                    }
+
                     replacement = "DataHasValue(:[" + concept.publicId().asUuidArray()[0] + "] \"" +
                             value + "\"^^xsd:" + dataType + ")";
                 } else {
@@ -406,12 +417,18 @@ public class RxnormUtility {
             // Process the URI based on its format
             if (uri.startsWith("http://snomed.info/id/")) {
                 String id = uri.substring("http://snomed.info/id/".length());
-                EntityProxy.Concept concept = makeConceptProxy(namespace, id);
+                final EntityProxy.Concept concept;
+                if (id.endsWith("-FS")) {
+                    concept = makeConceptProxy(namespace, id + "rxnorm");
+                } else {
+                    concept = makeConceptProxy(namespace, id);
+                }
+
                 replacement = ":[" + concept.publicId().asUuidArray()[0] + "]";
             } else if (uri.startsWith("http://mor.nlm.nih.gov/RXNORM/")) {
                 // RxNorm ID
                 String id = uri.substring("http://mor.nlm.nih.gov/RXNORM/".length());
-                EntityProxy.Concept concept = makeConceptProxy(namespace, id);
+                EntityProxy.Concept concept = makeConceptProxy(namespace, id+"rxnorm");
                 replacement = ":[" + concept.publicId().asUuidArray()[0] + "]";
             } else {
                 // Unknown URI type, keep as is

@@ -130,10 +130,19 @@ public class RxnormTransformationMojo extends AbstractMojo {
 
             // Create concepts for each class
             for (RxnormData rxnormConcept : rxnormConcepts) {
-                createRxnormConcept(rxnormConcept, timeForStamp, composer);
+                if (!rxnormConcept.getRdfsLabel().isEmpty() &&
+                        rxnormConcept.getRxnormName().isEmpty() &&
+                        rxnormConcept.getRxnormSynonym().isEmpty() &&
+                        rxnormConcept.getPrescribableSynonym().isEmpty() &&
+                        rxnormConcept.getSnomedCtId().isEmpty() &&
+                        rxnormConcept.getRxCuiId().isEmpty() &&
+                        rxnormConcept.getVuidId().isEmpty() &&
+                        rxnormConcept.getNdcCodes().isEmpty()) {
+                    createLabelOnlyConcept(rxnormConcept, timeForStamp, composer);
+                } else {
+                    createRxnormConcept(rxnormConcept, timeForStamp, composer);
+                }
             }
-
-            createLabelOnlyConcepts(rxnormConcepts, timeForStamp, composer);
 
             LOG.info("Completed creating RxNorm concepts");
 
@@ -436,28 +445,6 @@ public class RxnormTransformationMojo extends AbstractMojo {
                                 .with(PREFERRED)
                         ));
             });
-        }
-    }
-
-    /**
-     * Creates concepts that only have rdfs:label and SubClassOf/EquivalentClasses
-     */
-    private void createLabelOnlyConcepts(List<RxnormData> rxnormConcepts, long timeForStamp, Composer composer) {
-        LOG.info("Processing label-only concepts...");
-
-        for (RxnormData rxnormData : rxnormConcepts) {
-            // Check if this is a label-only concept (only has rdfs:label for annotations)
-            if (!rxnormData.getRdfsLabel().isEmpty() &&
-                    rxnormData.getRxnormName().isEmpty() &&
-                    rxnormData.getRxnormSynonym().isEmpty() &&
-                    rxnormData.getPrescribableSynonym().isEmpty() &&
-                    rxnormData.getSnomedCtId().isEmpty() &&
-                    rxnormData.getRxCuiId().isEmpty() &&
-                    rxnormData.getVuidId().isEmpty() &&
-                    rxnormData.getNdcCodes().isEmpty()) {
-
-                createLabelOnlyConcept(rxnormData, timeForStamp, composer);
-            }
         }
     }
 

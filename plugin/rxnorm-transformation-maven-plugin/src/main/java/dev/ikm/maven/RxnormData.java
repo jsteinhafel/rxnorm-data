@@ -33,6 +33,8 @@ public class RxnormData {
         this.uri = uri;
         if (uri.startsWith("http://mor.nlm.nih.gov/RXNORM/")) {
             this.id = uri.substring("http://mor.nlm.nih.gov/RXNORM/".length());
+        } else {
+            this.id = uri.substring("http://snomed.info/id/".length());
         }
     }
 

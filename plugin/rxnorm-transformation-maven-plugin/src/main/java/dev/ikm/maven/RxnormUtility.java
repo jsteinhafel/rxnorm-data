@@ -352,7 +352,7 @@ public class RxnormUtility {
             } else if (uri.startsWith("http://mor.nlm.nih.gov/RXNORM/")) {
                 // RxNorm ID
                 String id = uri.substring("http://mor.nlm.nih.gov/RXNORM/".length());
-                EntityProxy.Concept concept = makeConceptProxy(namespace, id+"rxnorm");
+                EntityProxy.Concept concept = makeConceptProxy(namespace, id);
                 replacement = ":[" + concept.publicId().asUuidArray()[0] + "]";
             } else {
                 // Unknown URI type, keep as is
@@ -428,7 +428,7 @@ public class RxnormUtility {
             } else if (uri.startsWith("http://mor.nlm.nih.gov/RXNORM/")) {
                 // RxNorm ID
                 String id = uri.substring("http://mor.nlm.nih.gov/RXNORM/".length());
-                EntityProxy.Concept concept = makeConceptProxy(namespace, id+"rxnorm");
+                EntityProxy.Concept concept = makeConceptProxy(namespace, id);
                 replacement = ":[" + concept.publicId().asUuidArray()[0] + "]";
             } else {
                 // Unknown URI type, keep as is

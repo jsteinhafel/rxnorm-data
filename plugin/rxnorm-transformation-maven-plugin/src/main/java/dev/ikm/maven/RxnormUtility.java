@@ -99,12 +99,6 @@ public class RxnormUtility {
 
                 attributes.add(concept);
 
-//                if (uri.startsWith("http://mor.nlm.nih.gov/RXNORM/")) {
-//                    attributes.add(concept);
-//                } else {
-//                    LOG.info("Skipping RxnormData object. Id is null. {}", concept);
-//                }
-
             }
         }
 
@@ -352,7 +346,7 @@ public class RxnormUtility {
             } else if (uri.startsWith("http://mor.nlm.nih.gov/RXNORM/")) {
                 // RxNorm ID
                 String id = uri.substring("http://mor.nlm.nih.gov/RXNORM/".length());
-                EntityProxy.Concept concept = makeConceptProxy(namespace, id);
+                EntityProxy.Concept concept = makeConceptProxy(namespace, id + "rxnorm");
                 replacement = ":[" + concept.publicId().asUuidArray()[0] + "]";
             } else {
                 // Unknown URI type, keep as is
@@ -428,7 +422,7 @@ public class RxnormUtility {
             } else if (uri.startsWith("http://mor.nlm.nih.gov/RXNORM/")) {
                 // RxNorm ID
                 String id = uri.substring("http://mor.nlm.nih.gov/RXNORM/".length());
-                EntityProxy.Concept concept = makeConceptProxy(namespace, id);
+                EntityProxy.Concept concept = makeConceptProxy(namespace, id + "rxnorm");
                 replacement = ":[" + concept.publicId().asUuidArray()[0] + "]";
             } else {
                 // Unknown URI type, keep as is
